@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fitness Personal App</string>
+    <string name="nav_perfil">Perfil</string>
+    <string name="nav_fotos">Fotos</string>
+    <string name="nav_video">Video</string>
+    <string name="nav_web">Web</string>
+    <string name="title_app">4. Aplicación de Fitness Personal</string>
+    <string name="perfil_title">4. Aplicación de Fitness Personal</string>
+    <string name="perfil_description">Perfil: Estadísticas físicas y metas del usuario.</string>
+    <string name="fotos_title">Fotos de Progreso</string>
+    <string name="fotos_description">Fotos: Registro fotográfico del progreso físico del usuario.</string>
+    <string name="video_title">Videos de Entrenamiento</string>
+    <string name="video_description">Video: Rutinas y ejercicios en formato de video para el usuario.</string>
+    <string name="web_title">Recursos Web</string>
+    <string name="web_description">Web: Artículos, guías y recursos online de fitness y nutrición.</string>
+</resources>
