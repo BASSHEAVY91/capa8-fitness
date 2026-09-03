@@ -31,7 +31,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -85,6 +89,7 @@ fun VideoScreen(
     var selectedCategory by remember { mutableStateOf(VideoCategory.ALL) }
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
+    var fabExpanded  by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
@@ -98,13 +103,36 @@ fun VideoScreen(
         modifier = modifier,
         containerColor = ContentBackground,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { showAddDialog = true },
-                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Agregar video") },
+            FloatingActionButton(
+                onClick = {
+                    fabExpanded = true
+                    showAddDialog = true
+                },
                 containerColor = FitnessBlue,
-                contentColor = Color.White
-            )
+                contentColor = Color.White,
+                modifier = Modifier.animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(
+                        horizontal = if (fabExpanded) 16.dp else 0.dp
+                    )
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Agregar video")
+                    AnimatedVisibility(visible = fabExpanded) {
+                        Text(
+                            text = "  Agregar video",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            }
         }
     ) { innerPadding ->
 
@@ -266,10 +294,11 @@ fun VideoScreen(
     // ── Add video dialog ──────────────────────────────────────────────────────
     if (showAddDialog) {
         AddVideoDialog(
-            onDismiss = { showAddDialog = false },
+            onDismiss = { showAddDialog = false; fabExpanded = false },
             onConfirm = { title, url, category, instructor, duration ->
                 viewModel.addVideo(title, url, category, instructor, duration)
                 showAddDialog = false
+                fabExpanded = false
             }
         )
     }
@@ -308,6 +337,7 @@ private fun AddVideoDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color.White,
         title = {
             Text(
                 "Agregar video",
@@ -327,7 +357,13 @@ private fun AddVideoDialog(
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = FitnessBlue,
-                        focusedLabelColor = FitnessBlue
+                        focusedLabelColor = FitnessBlue,
+                        unfocusedBorderColor = Color(0xFF888888),
+                        focusedTextColor = Color(0xFF111111),
+                        unfocusedTextColor = Color(0xFF111111),
+                        unfocusedLabelColor = Color(0xFF555555),
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
                     )
                 )
 
@@ -344,7 +380,13 @@ private fun AddVideoDialog(
                     },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = FitnessBlue,
-                        focusedLabelColor = FitnessBlue
+                        focusedLabelColor = FitnessBlue,
+                        unfocusedBorderColor = Color(0xFF888888),
+                        focusedTextColor = Color(0xFF111111),
+                        unfocusedTextColor = Color(0xFF111111),
+                        unfocusedLabelColor = Color(0xFF555555),
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
                     )
                 )
 
@@ -366,7 +408,13 @@ private fun AddVideoDialog(
                             .fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = FitnessBlue,
-                            focusedLabelColor = FitnessBlue
+                            focusedLabelColor = FitnessBlue,
+                            unfocusedBorderColor = Color(0xFF888888),
+                            focusedTextColor = Color(0xFF111111),
+                            unfocusedTextColor = Color(0xFF111111),
+                            unfocusedLabelColor = Color(0xFF555555),
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
                         )
                     )
                     ExposedDropdownMenu(
@@ -396,7 +444,13 @@ private fun AddVideoDialog(
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = FitnessBlue,
-                        focusedLabelColor = FitnessBlue
+                        focusedLabelColor = FitnessBlue,
+                        unfocusedBorderColor = Color(0xFF888888),
+                        focusedTextColor = Color(0xFF111111),
+                        unfocusedTextColor = Color(0xFF111111),
+                        unfocusedLabelColor = Color(0xFF555555),
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
                     )
                 )
 
@@ -411,7 +465,13 @@ private fun AddVideoDialog(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = FitnessBlue,
-                        focusedLabelColor = FitnessBlue
+                        focusedLabelColor = FitnessBlue,
+                        unfocusedBorderColor = Color(0xFF888888),
+                        focusedTextColor = Color(0xFF111111),
+                        unfocusedTextColor = Color(0xFF111111),
+                        unfocusedLabelColor = Color(0xFF555555),
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
                     )
                 )
             }
@@ -425,14 +485,14 @@ private fun AddVideoDialog(
             ) {
                 Text(
                     "Agregar",
-                    color = if (isValid) FitnessBlue else Color.Gray,
+                    color = if (isValid) FitnessBlue else Color(0xFFAAAAAA),
                     fontWeight = FontWeight.Bold
                 )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = Color.Gray)
+                Text("Cancelar", color = Color(0xFF555555))
             }
         }
     )
@@ -452,28 +512,49 @@ private fun SearchBar(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text("Buscar videos, instructores…", fontSize = 13.sp) },
+        placeholder = {
+            Text(
+                "Buscar videos, instructores…",
+                fontSize = 12.sp,
+                color = Color(0xFF999999)
+            )
+        },
         leadingIcon = {
-            Icon(Icons.Filled.Search, contentDescription = null, tint = FitnessBlue)
+            Icon(
+                Icons.Filled.Search,
+                contentDescription = null,
+                tint = FitnessBlue,
+                modifier = Modifier.size(18.dp)
+            )
         },
         trailingIcon = {
             if (query.isNotBlank()) {
-                IconButton(onClick = { onClear(); focusManager.clearFocus() }) {
-                    Icon(Icons.Filled.Close, contentDescription = "Limpiar", tint = Color.Gray)
+                IconButton(
+                    onClick = { onClear(); focusManager.clearFocus() },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = "Limpiar",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
             }
         },
         singleLine = true,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(24.dp),           // pill shape
+        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 13.sp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 2.dp),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = FitnessBlue,
             unfocusedBorderColor = Color(0xFFCCCCCC),
-            focusedLabelColor = FitnessBlue
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color(0xFFF8F8F8)
         )
     )
 }
