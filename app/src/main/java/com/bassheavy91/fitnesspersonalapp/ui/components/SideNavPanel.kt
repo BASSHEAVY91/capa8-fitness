@@ -18,15 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,26 +47,29 @@ import com.bassheavy91.fitnesspersonalapp.ui.theme.SideMenuText
  * Persistent vertical navigation panel with icons and an animated collapse toggle.
  *
  * Modes:
- *  • **Expanded** (96 dp) — icon + label, centred vertically per item.
- *  • **Collapsed / rail** (52 dp) — icon only, saving horizontal space.
+ *  • **Expanded** (96 dp) — icon + label per item.
+ *  • **Collapsed / rail** (52 dp) — icon only.
  *
- * The user toggles between modes by tapping the chevron button at the bottom
- * of the panel. State is remembered across recompositions via [rememberSaveable].
+ * The collapse state is owned by the caller so that the hamburger button in
+ * [FitnessTopBar] can also toggle it. The bottom chevron button calls
+ * [onToggleCollapse] as well.
  *
- * @param items         Navigation entries to display.
- * @param selectedRoute Route of the currently active screen.
- * @param onItemClick   Called when the user taps an entry.
- * @param modifier      Optional modifier for the outer container.
+ * @param items             Navigation entries to display.
+ * @param selectedRoute     Route of the currently active screen.
+ * @param onItemClick       Called when the user taps an entry.
+ * @param collapsed         Whether the panel is in rail (icon-only) mode.
+ * @param onToggleCollapse  Called when the user taps the bottom chevron.
+ * @param modifier          Optional modifier for the outer container.
  */
 @Composable
 fun SideNavPanel(
     items: List<SideNavItem>,
     selectedRoute: String,
     onItemClick: (String) -> Unit,
+    collapsed: Boolean = false,
+    onToggleCollapse: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var collapsed by rememberSaveable { mutableStateOf(false) }
-
     // Animate the width change smoothly
     val panelWidth by animateDpAsState(
         targetValue = if (collapsed) 52.dp else 96.dp,
@@ -104,12 +104,12 @@ fun SideNavPanel(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { collapsed = !collapsed }
+                .clickable { onToggleCollapse() }
                 .padding(vertical = 12.dp)
         ) {
             Icon(
-                imageVector = if (collapsed) Icons.Filled.ChevronRight
-                              else Icons.Filled.ChevronLeft,
+                imageVector = if (collapsed) Icons.AutoMirrored.Filled.KeyboardArrowRight
+                              else Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = if (collapsed) "Expandir menú" else "Contraer menú",
                 tint = FitnessBlueDark,
                 modifier = Modifier.size(20.dp)

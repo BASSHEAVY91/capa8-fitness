@@ -1,10 +1,10 @@
 package com.bassheavy91.fitnesspersonalapp.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.VideoLibrary
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
@@ -36,21 +36,21 @@ val sideNavItems = listOf(
     SideNavItem(
         route = NavRoutes.Perfil.route,
         label = "Perfil",
-        icon  = Icons.Filled.AccountCircle
+        icon  = Icons.Filled.Person
     ),
     SideNavItem(
         route = NavRoutes.Fotos.route,
         label = "Fotos",
-        icon  = Icons.Filled.PhotoLibrary
+        icon  = Icons.Filled.Image
     ),
     SideNavItem(
         route = NavRoutes.Video.route,
         label = "Video",
-        icon  = Icons.Filled.VideoLibrary
+        icon  = Icons.Filled.PlayArrow
     ),
     SideNavItem(
         route = NavRoutes.Web.route,
         label = "Web",
-        icon  = Icons.Filled.Language
+        icon  = Icons.Filled.Public
     )
 )

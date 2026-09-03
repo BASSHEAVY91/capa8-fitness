@@ -23,22 +23,30 @@ import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
  * Root composable of the app.
  *
  * Layout:
- * ┌─────────────────────────────────────────┐
- * │           FitnessTopBar (blue)          │
- * ├──────────┬──────────────────────────────┤
- * │SideNav   │  Content area                │
- * │(100 dp)  │  (screen fills remaining)    │
- * │          │                              │
- * └──────────┴──────────────────────────────┘
+ * ┌──────────────────────────────────────────────────┐
+ * │  ☰  FitnessTopBar (blue)                         │
+ * ├────────────┬─────────────────────────────────────┤
+ * │ SideNav    │  Content area                       │
+ * │ 96 dp      │  (fills remaining space)            │
+ * │ ──or──     │                                     │
+ * │ 52 dp rail │                                     │
+ * └────────────┴─────────────────────────────────────┘
+ *
+ * The hamburger icon (☰) in the top bar and the chevron at the bottom
+ * of the side panel both toggle [navCollapsed] — a single shared state
+ * owned here at the root level.
  */
 @Composable
 fun MainScreen() {
-    // Persist selected route across recompositions and process death
     var selectedRoute by rememberSaveable { mutableStateOf(NavRoutes.Perfil.route) }
+    var navCollapsed  by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
-            FitnessTopBar(title = "4. Aplicación de Fitness Personal")
+            FitnessTopBar(
+                title = "4. Aplicación de Fitness Personal",
+                onMenuClick = { navCollapsed = !navCollapsed }
+            )
         }
     ) { innerPadding ->
         Row(
@@ -51,7 +59,9 @@ fun MainScreen() {
             SideNavPanel(
                 items = sideNavItems,
                 selectedRoute = selectedRoute,
-                onItemClick = { route -> selectedRoute = route }
+                onItemClick = { route -> selectedRoute = route },
+                collapsed = navCollapsed,
+                onToggleCollapse = { navCollapsed = !navCollapsed }
             )
 
             // ── Content area ──────────────────────────────────────────────

@@ -1,7 +1,11 @@
 package com.bassheavy91.fitnesspersonalapp.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -16,25 +20,41 @@ import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessBlue
 import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 
 /**
- * Top application bar displaying the app title with the branded blue background.
+ * Top application bar with branded blue background.
  *
- * @param title    Text to display as the bar title.
- * @param modifier Optional [Modifier].
+ * @param title       Text displayed as the bar title.
+ * @param onMenuClick Callback invoked when the hamburger (☰) icon is tapped.
+ *                    Pass `null` to hide the icon (default).
+ * @param modifier    Optional [Modifier].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FitnessTopBar(
     title: String,
+    onMenuClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
+        navigationIcon = {
+            // Show the hamburger button only when a callback is provided
+            if (onMenuClick != null) {
+                IconButton(onClick = onMenuClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Menú",
+                        tint = ContentBackground
+                    )
+                }
+            }
+        },
         title = {
             Text(
                 text = title,
                 color = ContentBackground,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
+                // When there's a nav icon, left-align; otherwise centre
+                textAlign = if (onMenuClick != null) TextAlign.Start else TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
         },
@@ -52,6 +72,9 @@ fun FitnessTopBar(
 @Composable
 private fun FitnessTopBarPreview() {
     FitnessPersonalAppTheme {
-        FitnessTopBar(title = "4. Aplicación de Fitness Personal")
+        FitnessTopBar(
+            title = "4. Aplicación de Fitness Personal",
+            onMenuClick = {}
+        )
     }
 }
