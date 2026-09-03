@@ -8,11 +8,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:hardwareAccelerated="true"
         android:theme="@style/Theme.FitnessPersonalApp">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:hardwareAccelerated="true"
             android:theme="@style/Theme.FitnessPersonalApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
