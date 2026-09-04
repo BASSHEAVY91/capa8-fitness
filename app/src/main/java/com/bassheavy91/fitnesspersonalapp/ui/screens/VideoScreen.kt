@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,7 +24,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -90,13 +93,16 @@ fun VideoScreen(
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
     var fabExpanded  by remember { mutableStateOf(false) }
+    // skipPartiallyExpanded = true → sheet opens directly at the content height
+    // (≈52% of screen, controlled by the Box wrapper inside the sheet content).
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
     val filteredVideos = viewModel.filteredVideos(selectedCategory)
     val featuredVideos = viewModel.featuredVideos()
     val youtubeVideos = filteredVideos.filter { it.source == VideoSource.YOUTUBE }
-    val directVideos = filteredVideos.filter { it.source == VideoSource.DIRECT_MP4 }
+    val directVideos  = filteredVideos.filter { it.source == VideoSource.DIRECT_MP4 }
+    val webVideos     = filteredVideos.filter { it.source == VideoSource.WEBVIEW }
     val isSearchActive = viewModel.searchQuery.isNotBlank()
 
     Scaffold(
@@ -246,8 +252,29 @@ fun VideoScreen(
                     }
                 }
 
+                // ── Web embed section (Vimeo, etc.) ───────────────────────────
+                if (webVideos.isNotEmpty()) {
+                    item {
+                        SectionHeader(
+                            "🌐", "Web",
+                            "${webVideos.size} videos externos"
+                        )
+                    }
+                    items(webVideos, key = { it.id }) { video ->
+                        VideoGalleryCard(
+                            video = video,
+                            onClick = {
+                                selectedVideo = video
+                                scope.launch { sheetState.show() }
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                }
+
                 // ── Empty state ───────────────────────────────────────────────
                 val hasContent = youtubeVideos.isNotEmpty() || directVideos.isNotEmpty() ||
+                        webVideos.isNotEmpty() ||
                         (!isSearchActive && selectedCategory == VideoCategory.ALL
                                 && featuredVideos.isNotEmpty())
                 if (!hasContent) {
@@ -277,15 +304,29 @@ fun VideoScreen(
                         )
                     }
                 ) {
-                    VideoPlayerSheet(
-                        video = selectedVideo!!,
-                        allVideos = filteredVideos,
-                        onClose = {
-                            scope.launch { sheetState.hide() }
-                                .invokeOnCompletion { selectedVideo = null }
-                        },
-                        onVideoSelect = { video -> selectedVideo = video }
-                    )
+                    // Limit the sheet to ≈50% of the screen height.
+                    // fillMaxHeight(0.5f) constrains the incoming max height
+                    // to half the screen; VideoPlayerSheet fills that space.
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.72f)
+                    ) {
+                        VideoPlayerSheet(
+                            video = selectedVideo!!,
+                            allVideos = filteredVideos,
+                            onClose = {
+                                scope.launch { sheetState.hide() }
+                                    .invokeOnCompletion { selectedVideo = null }
+                            },
+                            onVideoSelect = { video -> selectedVideo = video },
+                            onDelete = { id ->
+                                viewModel.deleteVideo(id)
+                                scope.launch { sheetState.hide() }
+                                    .invokeOnCompletion { selectedVideo = null }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -325,14 +366,20 @@ private fun AddVideoDialog(
 
     // Detect source type for the helper label
     val detectedSource = when {
-        url.contains("youtube.com") || url.contains("youtu.be") -> "YouTube detectado ✓"
-        url.isBlank() -> "Ingresa una URL de YouTube o MP4 directo"
-        else -> "MP4 / stream directo ✓"
+        url.contains("youtube.com") || url.contains("youtu.be") -> "▶ YouTube detectado ✓"
+        url.contains("vimeo.com") -> "🎬 Vimeo detectado ✓"
+        url.isBlank() -> "Ingresa una URL (YouTube, Vimeo, MP4, etc.)"
+        url.matches(Regex(".*\\.(mp4|m3u8|webm|ogg|mov)(\\?.*)?$", RegexOption.IGNORE_CASE)) ->
+            "⬇ Stream directo detectado ✓"
+        else -> "🌐 URL web detectada ✓"
     }
     val sourceColor = when {
         url.contains("youtube.com") || url.contains("youtu.be") -> Color(0xFFCC0000)
+        url.contains("vimeo.com") -> Color(0xFF1AB7EA)
         url.isBlank() -> Color(0xFF888888)
-        else -> Color(0xFF1B7A34)
+        url.matches(Regex(".*\\.(mp4|m3u8|webm|ogg|mov)(\\?.*)?$", RegexOption.IGNORE_CASE)) ->
+            Color(0xFF1B7A34)
+        else -> Color(0xFF7B2FBE)
     }
 
     AlertDialog(
@@ -568,90 +615,154 @@ private fun VideoPlayerSheet(
     video: VideoItem,
     allVideos: List<VideoItem>,
     onClose: () -> Unit,
-    onVideoSelect: (VideoItem) -> Unit
+    onVideoSelect: (VideoItem) -> Unit,
+    onDelete: (String) -> Unit = {}
 ) {
     val relatedVideos = remember(video.id) {
         allVideos.filter { it.id != video.id && it.category == video.category }.take(4)
     }
+    var infoExpanded by remember { mutableStateOf(true) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().background(Color(0xFF0F0F1A)),
-        contentPadding = PaddingValues(bottom = 40.dp)
+    // Column fills the entire sheet so the video can use weight(1f) when collapsed.
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF0F0F1A))
     ) {
-        item { InlineVideoPlayer(video = video) }
+        // ── Video player ──────────────────────────────────────────────────────
+        // InlineVideoPlayer is always wrapped in the SAME Box so Compose reuses
+        // the same WebView / ExoPlayer instance when infoExpanded toggles.
+        // Using an if/else with different composable structures (as before) would
+        // unmount and remount the player, resetting the video position.
+        //
+        // Only the Box modifier (and the modifier/constrainToAspectRatio passed to
+        // the player) change — no composable identity change → no restart.
+        Box(
+            modifier = if (infoExpanded)
+                Modifier.fillMaxWidth()            // height from aspect ratio inside player
+            else
+                Modifier.fillMaxWidth().weight(1f) // fills remaining Column space
+        ) {
+            InlineVideoPlayer(
+                video = video,
+                modifier = if (infoExpanded) Modifier else Modifier.fillMaxSize(),
+                constrainToAspectRatio = infoExpanded
+            )
+        }
 
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(start = 16.dp, end = 8.dp, top = 14.dp),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = video.title, color = Color.White,
-                        fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp
+        // ── Collapse / expand bar — always visible ────────────────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { infoExpanded = !infoExpanded }
+                .padding(start = 16.dp, end = 8.dp, top = 10.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = video.title,
+                color = Color.White,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if (infoExpanded) Icons.Filled.ExpandLess
+                                      else Icons.Filled.ExpandMore,
+                        contentDescription = if (infoExpanded) "Contraer info" else "Expandir info",
+                        tint = Color(0xFFAAAAAA),
+                        modifier = Modifier.size(22.dp)
                     )
-                    Spacer(Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Delete button — only shown for user-added videos
+                    if (video.isUserAdded) {
+                        IconButton(onClick = { onDelete(video.id) }) {
+                            Icon(
+                                Icons.Filled.Delete,
+                                contentDescription = "Eliminar video",
+                                tint = Color(0xFFFF5555)
+                            )
+                        }
+                    }
+                    IconButton(onClick = onClose) {
+                        Icon(
+                            Icons.Filled.Close,
+                            contentDescription = "Cerrar",
+                            tint = Color(0xFFAAAAAA)
+                        )
+                    }
+                }
+        }
+
+        // ── Expandable info section ───────────────────────────────────────────
+        if (infoExpanded) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(bottom = 40.dp)
+            ) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         SourceChip(video.source)
                         CategoryChip(video.category)
                     }
                 }
-                IconButton(onClick = onClose) {
-                    Icon(Icons.Filled.Close, contentDescription = "Cerrar", tint = Color(0xFFAAAAAA))
-                }
-            }
-        }
 
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier.size(34.dp)
-                        .background(FitnessBlue, RoundedCornerShape(17.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        video.instructor.take(1).uppercase(),
-                        color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
-                Column {
-                    Text(video.instructor, color = Color(0xFFDDDDDD), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                    if (video.views.isNotBlank()) {
-                        Text("${video.views}  •  ${video.duration}", color = Color(0xFF888899), fontSize = 11.sp)
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier.size(34.dp)
+                                .background(FitnessBlue, RoundedCornerShape(17.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                video.instructor.take(1).uppercase(),
+                                color = Color.White, fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                video.instructor,
+                                color = Color(0xFFDDDDDD), fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            if (video.views.isNotBlank()) {
+                                Text(
+                                    "${video.views}  •  ${video.duration}",
+                                    color = Color(0xFF888899), fontSize = 11.sp
+                                )
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        item {
-            HorizontalDivider(color = Color(0xFF2A2A3A), modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                Icon(Icons.Filled.Info, contentDescription = null, tint = FitnessBlue,
-                    modifier = Modifier.size(15.dp).padding(top = 1.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(video.description, color = Color(0xFFAAAAAA), fontSize = 13.sp, lineHeight = 20.sp)
-            }
-        }
-
-        if (relatedVideos.isNotEmpty()) {
-            item {
-                HorizontalDivider(color = Color(0xFF2A2A3A), modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp))
-                Text("Videos relacionados", color = Color.White, fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-            }
-            items(relatedVideos, key = { "rel_${it.id}" }) { related ->
-                RelatedVideoRow(video = related, onClick = { onVideoSelect(related) })
+                if (relatedVideos.isNotEmpty()) {
+                    item {
+                        HorizontalDivider(
+                            color = Color(0xFF2A2A3A),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                        Text(
+                            "Videos relacionados", color = Color.White, fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                    }
+                    items(relatedVideos, key = { "rel_${it.id}" }) { related ->
+                        RelatedVideoRow(video = related, onClick = { onVideoSelect(related) })
+                    }
+                }
             }
         }
     }
@@ -793,9 +904,10 @@ private fun EmptyState(isSearch: Boolean, query: String, category: VideoCategory
 @Composable
 private fun SourceChip(source: VideoSource) {
     val (label, color) = when (source) {
-        VideoSource.YOUTUBE -> "▶ YouTube" to Color(0xFFCC0000)
-        VideoSource.DIRECT_MP4 -> "⬇ Directo" to Color(0xFF1B7A34)
-        VideoSource.FEATURED -> "⭐ Destacado" to FitnessBlue
+        VideoSource.YOUTUBE    -> "▶ YouTube"   to Color(0xFFCC0000)
+        VideoSource.DIRECT_MP4 -> "⬇ Directo"  to Color(0xFF1B7A34)
+        VideoSource.FEATURED   -> "⭐ Destacado" to FitnessBlue
+        VideoSource.WEBVIEW    -> "🌐 Web"       to Color(0xFF7B2FBE)
     }
     SuggestionChip(
         onClick = {},

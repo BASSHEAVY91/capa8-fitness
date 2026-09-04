@@ -295,9 +295,10 @@ fun FeaturedVideoCard(
 @Composable
 private fun SourceBadge(source: VideoSource, modifier: Modifier = Modifier) {
     val (label, bgColor) = when (source) {
-        VideoSource.YOUTUBE -> "▶ YouTube" to Color(0xFFCC0000)
-        VideoSource.DIRECT_MP4 -> "⬇ Directo" to Color(0xFF1B7A34)
-        VideoSource.FEATURED -> "⭐ Destacado" to Color(0xFF4A90D9)
+        VideoSource.YOUTUBE    -> "▶ YouTube"   to Color(0xFFCC0000)
+        VideoSource.DIRECT_MP4 -> "⬇ Directo"  to Color(0xFF1B7A34)
+        VideoSource.FEATURED   -> "⭐ Destacado" to Color(0xFF4A90D9)
+        VideoSource.WEBVIEW    -> "🌐 Web"       to Color(0xFF7B2FBE)
     }
     Text(
         text = label,

@@ -30,8 +30,11 @@ object VideoRepository {
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
 
     // ── YouTube embed base ────────────────────────────────────────────────────
+    // autoplay=1 is blocked by YouTube policy inside Android WebViews even when
+    // mediaPlaybackRequiresUserGesture is disabled. Omitting it lets the iFrame
+    // show YouTube's native play button so the user can start playback manually.
     private fun yt(id: String) =
-        "https://www.youtube.com/embed/$id?autoplay=1&rel=0&modestbranding=1"
+        "https://www.youtube.com/embed/$id?rel=0&modestbranding=1"
 
     private val catalogue: List<VideoItem> = listOf(
 
@@ -141,6 +144,20 @@ object VideoRepository {
             duration = "35:00",
             instructor = "Zumba Official",
             views = "7.2 M vistas"
+        ),
+
+        // ──────────────── VIMEO ──────────────────────────────────────────────
+        VideoItem(
+            id = "vimeo_1",
+            title = "Abstract — The Art of Design",
+            description = "Documental de diseño de Netflix. Vimeo public embed test.",
+            thumbnailUrl = "https://picsum.photos/seed/vimeo1/640/360",
+            videoUrl = "https://player.vimeo.com/video/208488746?autoplay=0&byline=0&title=0&portrait=0",
+            source = VideoSource.WEBVIEW,
+            category = VideoCategory.FUERZA,
+            duration = "—",
+            instructor = "Vimeo Test",
+            views = "Público"
         ),
 
         // ──────────────── DIRECT MP4 ─────────────────────────────────────────
