@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.navigation
+package com.capa8.fitnesspersonalapp.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image

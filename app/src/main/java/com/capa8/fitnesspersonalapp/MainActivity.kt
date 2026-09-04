@@ -1,11 +1,11 @@
-package com.bassheavy91.fitnesspersonalapp
+package com.capa8.fitnesspersonalapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.bassheavy91.fitnesspersonalapp.ui.screens.MainScreen
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import com.capa8.fitnesspersonalapp.ui.screens.MainScreen
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 
 /**
  * Single-activity entry point for the Fitness Personal App.

@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.screens
+package com.capa8.fitnesspersonalapp.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -70,17 +70,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoCategory
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoItem
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoSource
-import com.bassheavy91.fitnesspersonalapp.ui.components.video.FeaturedVideoCard
-import com.bassheavy91.fitnesspersonalapp.ui.components.video.InlineVideoPlayer
-import com.bassheavy91.fitnesspersonalapp.ui.components.video.VideoGalleryCard
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentBackground
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentTitleColor
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessBlue
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessBlueDark
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import com.capa8.fitnesspersonalapp.data.model.VideoCategory
+import com.capa8.fitnesspersonalapp.data.model.VideoItem
+import com.capa8.fitnesspersonalapp.data.model.VideoSource
+import com.capa8.fitnesspersonalapp.ui.components.video.FeaturedVideoCard
+import com.capa8.fitnesspersonalapp.ui.components.video.InlineVideoPlayer
+import com.capa8.fitnesspersonalapp.ui.components.video.VideoGalleryCard
+import com.capa8.fitnesspersonalapp.ui.theme.ContentBackground
+import com.capa8.fitnesspersonalapp.ui.theme.ContentTitleColor
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlue
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlueDark
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.bassheavy91.fitnesspersonalapp"
+    namespace = "com.capa8.fitnesspersonalapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.bassheavy91.fitnesspersonalapp"
+        applicationId = "com.capa8.fitnesspersonalapp"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

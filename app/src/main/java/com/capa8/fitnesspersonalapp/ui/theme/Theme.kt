@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.theme
+package com.capa8.fitnesspersonalapp.ui.theme
 
 import android.app.Activity
 import android.os.Build

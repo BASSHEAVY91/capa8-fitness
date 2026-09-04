@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.components
+package com.capa8.fitnesspersonalapp.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -34,14 +34,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bassheavy91.fitnesspersonalapp.navigation.SideNavItem
-import com.bassheavy91.fitnesspersonalapp.navigation.sideNavItems
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessBlue
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessBlueDark
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
-import com.bassheavy91.fitnesspersonalapp.ui.theme.SideMenuBackground
-import com.bassheavy91.fitnesspersonalapp.ui.theme.SideMenuSelected
-import com.bassheavy91.fitnesspersonalapp.ui.theme.SideMenuText
+import com.capa8.fitnesspersonalapp.navigation.SideNavItem
+import com.capa8.fitnesspersonalapp.navigation.sideNavItems
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlue
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlueDark
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import com.capa8.fitnesspersonalapp.ui.theme.SideMenuBackground
+import com.capa8.fitnesspersonalapp.ui.theme.SideMenuSelected
+import com.capa8.fitnesspersonalapp.ui.theme.SideMenuText
 
 /**
  * Persistent vertical navigation panel with icons and an animated collapse toggle.

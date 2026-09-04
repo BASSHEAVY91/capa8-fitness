@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.components.video
+package com.capa8.fitnesspersonalapp.ui.components.video
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -41,9 +41,9 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import com.bassheavy91.fitnesspersonalapp.R
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoItem
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoSource
+import com.capa8.fitnesspersonalapp.R
+import com.capa8.fitnesspersonalapp.data.model.VideoItem
+import com.capa8.fitnesspersonalapp.data.model.VideoSource
 
 private const val CHROME_MOBILE_UA =
     "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +

@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.components
+package com.capa8.fitnesspersonalapp.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -15,9 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentBackground
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessBlue
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import com.capa8.fitnesspersonalapp.ui.theme.ContentBackground
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlue
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 
 /**
  * Top application bar with branded blue background.

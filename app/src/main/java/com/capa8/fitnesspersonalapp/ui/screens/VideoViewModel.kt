@@ -1,14 +1,14 @@
-package com.bassheavy91.fitnesspersonalapp.ui.screens
+package com.capa8.fitnesspersonalapp.ui.screens
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoCategory
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoItem
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoSource
-import com.bassheavy91.fitnesspersonalapp.data.repository.VideoRepository
+import com.capa8.fitnesspersonalapp.data.model.VideoCategory
+import com.capa8.fitnesspersonalapp.data.model.VideoItem
+import com.capa8.fitnesspersonalapp.data.model.VideoSource
+import com.capa8.fitnesspersonalapp.data.repository.VideoRepository
 import java.util.UUID
 
 /**

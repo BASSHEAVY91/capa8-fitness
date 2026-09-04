@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.theme
+package com.capa8.fitnesspersonalapp.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

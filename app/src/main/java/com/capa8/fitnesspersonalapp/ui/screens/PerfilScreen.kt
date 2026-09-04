@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.screens
+package com.capa8.fitnesspersonalapp.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,9 +12,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentTextColor
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentTitleColor
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import com.capa8.fitnesspersonalapp.ui.theme.ContentTextColor
+import com.capa8.fitnesspersonalapp.ui.theme.ContentTitleColor
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 
 /**
  * Perfil screen – shows physical statistics and goals of the user.

@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.screens
+package com.capa8.fitnesspersonalapp.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,22 +12,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentTextColor
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentTitleColor
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import com.capa8.fitnesspersonalapp.ui.theme.ContentTextColor
+import com.capa8.fitnesspersonalapp.ui.theme.ContentTitleColor
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 
 /**
- * Web screen – online fitness and nutrition articles and guides.
+ * Fotos screen – photographic record of the user's physical progress.
  */
 @Composable
-fun WebScreen(modifier: Modifier = Modifier) {
+fun FotosScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
         Text(
-            text = "Recursos Web",
+            text = "Fotos de Progreso",
             color = ContentTitleColor,
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
@@ -37,7 +37,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Web: Artículos, guías y recursos online de fitness y nutrición.",
+            text = "Fotos: Registro fotográfico del progreso físico del usuario.",
             color = ContentTextColor,
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
@@ -46,7 +46,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // TODO: Add WebView or curated list of fitness resource links
+        // TODO: Add photo gallery grid with before/after comparison support
     }
 }
 
@@ -54,8 +54,8 @@ fun WebScreen(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-private fun WebScreenPreview() {
+private fun FotosScreenPreview() {
     FitnessPersonalAppTheme {
-        WebScreen()
+        FotosScreen()
     }
 }

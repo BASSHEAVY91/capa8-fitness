@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.components.video
+package com.capa8.fitnesspersonalapp.ui.components.video
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,10 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import android.webkit.WebView
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoItem
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoSource
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentTitleColor
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessBlue
+import com.capa8.fitnesspersonalapp.data.model.VideoItem
+import com.capa8.fitnesspersonalapp.data.model.VideoSource
+import com.capa8.fitnesspersonalapp.ui.theme.ContentTitleColor
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlue
 
 /**
  * Card shown in the video gallery grid/list.

@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.data.model
+package com.capa8.fitnesspersonalapp.data.model
 
 /**
  * Represents a single video entry in the gallery.

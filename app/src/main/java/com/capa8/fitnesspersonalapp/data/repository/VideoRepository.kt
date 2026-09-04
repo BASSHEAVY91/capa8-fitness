@@ -1,8 +1,8 @@
-package com.bassheavy91.fitnesspersonalapp.data.repository
+package com.capa8.fitnesspersonalapp.data.repository
 
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoCategory
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoItem
-import com.bassheavy91.fitnesspersonalapp.data.model.VideoSource
+import com.capa8.fitnesspersonalapp.data.model.VideoCategory
+import com.capa8.fitnesspersonalapp.data.model.VideoItem
+import com.capa8.fitnesspersonalapp.data.model.VideoSource
 
 /**
  * Static multi-source video catalogue.

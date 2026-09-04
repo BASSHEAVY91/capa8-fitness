@@ -1,4 +1,4 @@
-package com.bassheavy91.fitnesspersonalapp.ui.screens
+package com.capa8.fitnesspersonalapp.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -12,12 +12,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.bassheavy91.fitnesspersonalapp.navigation.NavRoutes
-import com.bassheavy91.fitnesspersonalapp.navigation.sideNavItems
-import com.bassheavy91.fitnesspersonalapp.ui.components.FitnessTopBar
-import com.bassheavy91.fitnesspersonalapp.ui.components.SideNavPanel
-import com.bassheavy91.fitnesspersonalapp.ui.theme.ContentBackground
-import com.bassheavy91.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import com.capa8.fitnesspersonalapp.navigation.NavRoutes
+import com.capa8.fitnesspersonalapp.navigation.sideNavItems
+import com.capa8.fitnesspersonalapp.ui.components.FitnessTopBar
+import com.capa8.fitnesspersonalapp.ui.components.SideNavPanel
+import com.capa8.fitnesspersonalapp.ui.theme.ContentBackground
+import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 
 /**
  * Root composable of the app.
