@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,10 +40,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.capa8.fitnesspersonalapp.R
 import com.capa8.fitnesspersonalapp.ui.theme.ContentTextColor
 import com.capa8.fitnesspersonalapp.ui.theme.ContentTitleColor
 import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
@@ -53,28 +56,27 @@ import kotlinx.coroutines.withContext
  * Fotos screen – photographic record of the user's physical progress.
  */
 
-// Paso 1: modelo de datos. Ahora puede tener una foto real (imageUri) o usar el color de relleno
 data class ProgressPhoto(
     val id: Int,
     val caption: String,
     val date: String,
     val colorHex: Long,
+    @DrawableRes val drawableRes: Int? = null,
     val imageUri: Uri? = null
 )
 
-// Datos de ejemplo (mock) — se muestran hasta que el usuario agregue fotos reales
+// Fotos reales descargadas de Pexels, guardadas en res/drawable
 private fun sampleProgressPhotos(): List<ProgressPhoto> = listOf(
-    ProgressPhoto(1, "Semana 1", "03/09/2026", 0xFFB8E0D2),
-    ProgressPhoto(2, "Semana 4", "24/09/2026", 0xFFF6D3B0),
-    ProgressPhoto(3, "Semana 8", "22/10/2026", 0xFFD8E2D4),
-    ProgressPhoto(4, "Semana 12", "19/11/2026", 0xFFE4E2F5)
+    ProgressPhoto(1, "Semana 1", "03/09/2026", 0xFFB8E0D2, drawableRes = R.drawable.gym1),
+    ProgressPhoto(2, "Semana 4", "24/09/2026", 0xFFF6D3B0, drawableRes = R.drawable.gym2),
+    ProgressPhoto(3, "Semana 8", "22/10/2026", 0xFFD8E2D4, drawableRes = R.drawable.gym3),
+    ProgressPhoto(4, "Semana 12", "19/11/2026", 0xFFE4E2F5, drawableRes = R.drawable.gym4)
 )
 
 @Composable
 fun FotosScreen(modifier: Modifier = Modifier) {
     var fotos by remember { mutableStateOf(sampleProgressPhotos()) }
 
-    // Paso 3: selector de fotos nativo de Android (Photo Picker, sin permisos extra)
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
@@ -137,7 +139,6 @@ fun FotosScreen(modifier: Modifier = Modifier) {
     }
 }
 
-// Paso 4: decodifica la imagen real usando solo herramientas de Android (sin librerías nuevas)
 @Composable
 private fun rememberBitmapFromUri(uri: Uri): ImageBitmap? {
     val context = LocalContext.current
@@ -151,7 +152,7 @@ private fun rememberBitmapFromUri(uri: Uri): ImageBitmap? {
                     bitmap = decoded?.asImageBitmap()
                 }
             } catch (e: Exception) {
-                // Si falla, se queda en null y se muestra el placeholder
+                // Se queda en null y se muestra el placeholder
             }
         }
     }
@@ -172,20 +173,31 @@ private fun PhotoCard(foto: ProgressPhoto) {
                     .background(Color(foto.colorHex)),
                 contentAlignment = Alignment.Center
             ) {
-                if (foto.imageUri != null) {
-                    val bitmap = rememberBitmapFromUri(foto.imageUri)
-                    if (bitmap != null) {
+                when {
+                    foto.imageUri != null -> {
+                        val bitmap = rememberBitmapFromUri(foto.imageUri)
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = foto.caption,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Text(text = "⏳", fontSize = 24.sp)
+                        }
+                    }
+                    foto.drawableRes != null -> {
                         Image(
-                            bitmap = bitmap,
+                            painter = painterResource(id = foto.drawableRes),
                             contentDescription = foto.caption,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
-                    } else {
-                        Text(text = "⏳", fontSize = 24.sp)
                     }
-                } else {
-                    Text(text = "📷", fontSize = 28.sp)
+                    else -> {
+                        Text(text = "📷", fontSize = 28.sp)
+                    }
                 }
             }
             Column(modifier = Modifier.padding(8.dp)) {
