@@ -68,11 +68,12 @@ fun MainScreen() {
             val contentModifier = Modifier.fillMaxSize()
 
             when (selectedRoute) {
-                NavRoutes.Perfil.route -> PerfilScreen(modifier = contentModifier)
-                NavRoutes.Fotos.route  -> FotosScreen(modifier = contentModifier)
-                NavRoutes.Video.route  -> VideoScreen(modifier = contentModifier)
-                NavRoutes.Web.route    -> WebScreen(modifier = contentModifier)
-                else                   -> PerfilScreen(modifier = contentModifier)
+                NavRoutes.Perfil.route      -> PerfilScreen(modifier = contentModifier)
+                NavRoutes.Fotos.route       -> FotosScreen(modifier = contentModifier)
+                NavRoutes.Video.route       -> VideoScreen(modifier = contentModifier)
+                NavRoutes.Web.route         -> WebScreen(modifier = contentModifier)
+                NavRoutes.Utilidades.route  -> UtilidadesScreen(modifier = contentModifier)
+                else                        -> PerfilScreen(modifier = contentModifier)
             }
         }
     }

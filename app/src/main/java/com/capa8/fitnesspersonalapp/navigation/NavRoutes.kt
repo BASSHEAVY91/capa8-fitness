@@ -1,6 +1,7 @@
 package com.capa8.fitnesspersonalapp.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
@@ -12,10 +13,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
  * Each object defines a unique route string used by Compose Navigation.
  */
 sealed class NavRoutes(val route: String) {
-    data object Perfil : NavRoutes("perfil")
-    data object Fotos  : NavRoutes("fotos")
-    data object Video  : NavRoutes("video")
-    data object Web    : NavRoutes("web")
+    data object Perfil      : NavRoutes("perfil")
+    data object Fotos       : NavRoutes("fotos")
+    data object Video       : NavRoutes("video")
+    data object Web         : NavRoutes("web")
+    data object Utilidades  : NavRoutes("utilidades")
 }
 
 /**
@@ -52,5 +54,10 @@ val sideNavItems = listOf(
         route = NavRoutes.Web.route,
         label = "Web",
         icon  = Icons.Filled.Public
+    ),
+    SideNavItem(
+        route = NavRoutes.Utilidades.route,
+        label = "Utilidades",
+        icon  = Icons.Filled.Build
     )
 )
