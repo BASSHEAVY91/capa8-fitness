@@ -38,13 +38,15 @@ import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
  */
 @Composable
 fun MainScreen() {
-    var selectedRoute by rememberSaveable { mutableStateOf(NavRoutes.Perfil.route) }
+    var selectedRoute by rememberSaveable { mutableStateOf(NavRoutes.Utilidades.route) }
     var navCollapsed  by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
+            val screenTitle = sideNavItems.find { it.route == selectedRoute }?.label
+                ?: "FitPoli"
             FitnessTopBar(
-                title = "4. Aplicación de Fitness Personal",
+                title = screenTitle,
                 onMenuClick = { navCollapsed = !navCollapsed }
             )
         }
