@@ -34,7 +34,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -58,7 +58,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -69,6 +68,7 @@ import com.capa8.fitnesspersonalapp.ui.theme.ContentTextColor
 import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlue
 import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlueDark
 import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -200,7 +200,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
     var totalSeconds by remember { mutableIntStateOf(prefs.getInt(KEY_CRONO_S, 0)) }
     var isRunning    by remember { mutableStateOf(false) }
 
-    LaunchedEffect(isRunning) { while (isRunning) { delay(1_000L); totalSeconds++ } }
+    LaunchedEffect(isRunning) { while (isRunning) { delay(1.seconds); totalSeconds++ } }
     LaunchedEffect(totalSeconds) { if (!isRunning) prefs.edit().putInt(KEY_CRONO_S, totalSeconds).apply() }
 
     // ── IMC state (persisted) ─────────────────────────────────────────────────
@@ -314,7 +314,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = FitnessBlue)
+                            colors = ButtonDefaults.buttonColors(containerColor = FitnessBlue, contentColor = Color.White)
                         ) {
                             Icon(Icons.Filled.Add, null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
@@ -494,7 +494,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)) {
-                CollapsibleHeader(Icons.Filled.TrendingUp, "Progreso Semanal", progresoExpanded) { progresoExpanded = !progresoExpanded }
+                CollapsibleHeader(Icons.AutoMirrored.Filled.TrendingUp, "Progreso Semanal", progresoExpanded) { progresoExpanded = !progresoExpanded }
                 AnimatedVisibility(visible = progresoExpanded, enter = expandVertically(), exit = shrinkVertically()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Spacer(Modifier.height(14.dp))
@@ -552,48 +552,6 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
 
         Spacer(Modifier.height(24.dp))
     }
-}
-
-// ── Cronómetro sub-composables ─────────────────────────────────────────────────
-
-@Composable
-private fun TimeSegment(value: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .background(FitnessBlueDark.copy(alpha = 0.08f), RoundedCornerShape(10.dp))
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = value,
-                fontSize = 44.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = FitnessBlueDark,
-                letterSpacing = 2.sp
-            )
-        }
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = label,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Medium,
-            color = ContentTextColor,
-            letterSpacing = 1.5.sp
-        )
-    }
-}
-
-@Composable
-private fun TimeSeparator() {
-    Text(
-        text = ":",
-        fontSize = 36.sp,
-        fontWeight = FontWeight.Bold,
-        color = FitnessBlue.copy(alpha = 0.5f),
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.dp)
-            .padding(bottom = 16.dp)
-    )
 }
 
 // ── Preview ────────────────────────────────────────────────────────────────────

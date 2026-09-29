@@ -1,6 +1,7 @@
 package com.capa8.fitnesspersonalapp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,7 +34,7 @@ import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
  * └────────────┴─────────────────────────────────────┘
  *
  * The hamburger icon (☰) in the top bar and the chevron at the bottom
- * of the side panel both toggle [navCollapsed] — a single shared state
+ * of the side panel both toggle `navCollapsed` — a single shared state
  * owned here at the root level.
  */
 @Composable
@@ -69,13 +70,15 @@ fun MainScreen() {
             // ── Content area ──────────────────────────────────────────────
             val contentModifier = Modifier.fillMaxSize()
 
-            when (selectedRoute) {
-                NavRoutes.Perfil.route      -> PerfilScreen(modifier = contentModifier)
-                NavRoutes.Fotos.route       -> FotosScreen(modifier = contentModifier)
-                NavRoutes.Video.route       -> VideoScreen(modifier = contentModifier)
-                NavRoutes.Web.route         -> WebScreen(modifier = contentModifier)
-                NavRoutes.Utilidades.route  -> UtilidadesScreen(modifier = contentModifier)
-                else                        -> PerfilScreen(modifier = contentModifier)
+            Box(contentModifier) {
+                when (selectedRoute) {
+                    NavRoutes.Perfil.route     -> PerfilScreen()
+                    NavRoutes.Fotos.route      -> FotosScreen(modifier = Modifier.fillMaxSize())
+                    NavRoutes.Video.route      -> VideoScreen(modifier = Modifier.fillMaxSize())
+                    NavRoutes.Web.route        -> WebScreen(modifier = Modifier.fillMaxSize())
+                    NavRoutes.Utilidades.route -> UtilidadesScreen()
+                    else                       -> PerfilScreen()
+                }
             }
         }
     }

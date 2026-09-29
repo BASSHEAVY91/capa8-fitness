@@ -29,8 +29,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
@@ -165,8 +165,8 @@ fun WebScreen(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                NavBtn(Icons.Filled.ArrowBack, "Atras", canGoBack) { webViewRef?.goBack() }
-                NavBtn(Icons.Filled.ArrowForward, "Adelante", canGoForward) { webViewRef?.goForward() }
+                NavBtn(Icons.AutoMirrored.Filled.ArrowBack, "Atras", canGoBack) { webViewRef?.goBack() }
+                NavBtn(Icons.AutoMirrored.Filled.ArrowForward, "Adelante", canGoForward) { webViewRef?.goForward() }
                 NavBtn(Icons.Filled.Home, "Inicio", true) { navigate(HOME_URL) }
                 Spacer(Modifier.width(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
