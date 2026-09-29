@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -166,6 +167,18 @@ private fun CollapsibleHeader(
 @Composable
 fun UtilidadesScreen(modifier: Modifier = Modifier) {
 
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+
+    val horizontalPadding = if (screenWidthDp < 360) 8.dp else 16.dp
+    val verticalPadding = if (screenWidthDp < 360) 8.dp else 12.dp
+    val timeFontSize = if (screenWidthDp < 360) 38.sp else 50.sp
+    val circleSize   = if (screenWidthDp < 360) 56.dp else 68.dp
+    val iconSize     = if (screenWidthDp < 360) 26.dp else 34.dp
+    val buttonsSpace = if (screenWidthDp < 360) 12.dp else 20.dp
+    val emojiFontSize = if (screenWidthDp < 360) 18.sp else 22.sp
+    val emojiPaddingV = if (screenWidthDp < 360) 6.dp else 8.dp
+
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
 
@@ -238,7 +251,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = horizontalPadding, vertical = verticalPadding),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
 
@@ -288,9 +301,9 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                                         .clickable { bitacoraEmoji = emoji }
                                         .background(if (selected) FitnessBlue.copy(alpha = 0.13f) else Color.Transparent, RoundedCornerShape(10.dp))
                                         .border(if (selected) 2.dp else 1.dp, if (selected) FitnessBlue else Color(0xFFE0E0E0), RoundedCornerShape(10.dp))
-                                        .padding(vertical = 8.dp)
+                                        .padding(vertical = emojiPaddingV)
                                 ) {
-                                    Text(emoji, fontSize = 22.sp)
+                                    Text(emoji, fontSize = emojiFontSize)
                                     Spacer(Modifier.height(3.dp))
                                     Text(
                                         EMOJI_LABELS[idx], fontSize = 9.sp,
@@ -366,7 +379,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                         // ── Time display ───────────────────────────────────
                         Text(
                             text = formatTime(totalSeconds),
-                            fontSize = 50.sp,
+                            fontSize = timeFontSize,
                             fontWeight = FontWeight.ExtraBold,
                             color = FitnessBlueDark,
                             letterSpacing = 3.sp
@@ -383,29 +396,29 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                             // Play
                             Box(
                                 modifier = Modifier
-                                    .size(68.dp)
+                                    .size(circleSize)
                                     .background(Color(0xFF4CAF50), CircleShape)
                                     .clickable { if (!isRunning) isRunning = true },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Filled.PlayArrow, "Iniciar", tint = Color.White, modifier = Modifier.size(34.dp))
+                                Icon(Icons.Filled.PlayArrow, "Iniciar", tint = Color.White, modifier = Modifier.size(iconSize))
                             }
-                            Spacer(Modifier.width(20.dp))
+                            Spacer(Modifier.width(buttonsSpace))
                             // Stop
                             Box(
                                 modifier = Modifier
-                                    .size(68.dp)
+                                    .size(circleSize)
                                     .background(Color(0xFFE53935), CircleShape)
                                     .clickable { isRunning = false },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Filled.Stop, "Detener", tint = Color.White, modifier = Modifier.size(34.dp))
+                                Icon(Icons.Filled.Stop, "Detener", tint = Color.White, modifier = Modifier.size(iconSize))
                             }
-                            Spacer(Modifier.width(20.dp))
+                            Spacer(Modifier.width(buttonsSpace))
                             // Reset
                             Box(
                                 modifier = Modifier
-                                    .size(68.dp)
+                                    .size(circleSize)
                                     .background(Color(0xFF7986CB), CircleShape)
                                     .clickable {
                                         isRunning = false
@@ -414,7 +427,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Filled.Refresh, "Reiniciar", tint = Color.White, modifier = Modifier.size(34.dp))
+                                Icon(Icons.Filled.Refresh, "Reiniciar", tint = Color.White, modifier = Modifier.size(iconSize))
                             }
                         }
 
@@ -502,11 +515,24 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                         weeklyRecords.forEachIndexed { idx, rec ->
                             Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(rec.label, fontSize = 13.sp, modifier = Modifier.width(90.dp), color = ContentTextColor)
-                                    Text("%.1f kg".format(rec.kg), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = FitnessBlueDark, modifier = Modifier.width(68.dp))
+                                    Text(
+                                        rec.label,
+                                        fontSize = 13.sp,
+                                        color = ContentTextColor,
+                                        modifier = Modifier.weight(1.2f)
+                                    )
+                                    Text(
+                                        "%.1f kg".format(rec.kg),
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = FitnessBlueDark,
+                                        modifier = Modifier.weight(0.8f)
+                                    )
                                     LinearProgressIndicator(
                                         progress = { if (maxKg > 0f) rec.kg / maxKg else 0f },
-                                        modifier = Modifier.weight(1f).height(8.dp),
+                                        modifier = Modifier
+                                            .weight(2f)
+                                            .height(8.dp),
                                         color = FitnessBlue, trackColor = FitnessBlue.copy(alpha = 0.18f),
                                         strokeCap = StrokeCap.Round
                                     )
