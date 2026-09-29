@@ -98,7 +98,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
 
     BackHandler(enabled = canGoBack) { webViewRef?.goBack() }
 
-    fun navigate(raw: String) {
+    val navigate: (String) -> Unit = { raw ->
         val url = when {
             raw.startsWith("http://") || raw.startsWith("https://") -> raw
             raw.contains(".") && !raw.contains(" ") -> "https://$raw"
@@ -115,7 +115,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .background(Color(0xFFF5F7FA))
     ) {
-        // Toolbar
+        // ── Toolbar ───────────────────────────────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -151,7 +151,10 @@ fun WebScreen(modifier: Modifier = Modifier) {
                 Spacer(Modifier.width(6.dp))
                 IconButton(
                     onClick = { if (isLoading) webViewRef?.stopLoading() else webViewRef?.reload() },
-                    modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(Color.White.copy(alpha = 0.15f))
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.White.copy(alpha = 0.15f))
                 ) {
                     Icon(Icons.Filled.Refresh, contentDescription = "Recargar", tint = Color.White, modifier = Modifier.size(20.dp))
                 }
@@ -177,7 +180,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // Progress bar
+        // ── Thin progress bar ─────────────────────────────────────────────────
         AnimatedVisibility(visible = isLoading && loadProgress in 0.01f..0.99f, enter = fadeIn(), exit = fadeOut()) {
             LinearProgressIndicator(
                 progress = { loadProgress },
@@ -187,7 +190,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
             )
         }
 
-        // Bookmark chips
+        // ── Bookmark chips ────────────────────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -216,7 +219,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // Error banner
+        // ── Error banner ──────────────────────────────────────────────────────
         AnimatedVisibility(visible = hasError, enter = fadeIn(), exit = fadeOut()) {
             Row(
                 modifier = Modifier
@@ -236,8 +239,8 @@ fun WebScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // WebView
-        Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+        // ── WebView + loading overlay ─────────────────────────────────────────
+        Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
@@ -290,31 +293,70 @@ fun WebScreen(modifier: Modifier = Modifier) {
                         webViewRef = this
                     }
                 },
-                update = { wv ->
-                    webViewRef = wv
-                }
+                update = { wv -> webViewRef = wv }
             )
+
+            // ── Full-screen loading overlay ───────────────────────────────────
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF5F7FA)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(56.dp),
+                            color = FitnessBlue,
+                            strokeWidth = 4.dp
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            text = "Cargando página...",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = FitnessBlueDark
+                        )
+                        if (loadProgress in 0.01f..0.99f) {
+                            Spacer(Modifier.height(12.dp))
+                            LinearProgressIndicator(
+                                progress = { loadProgress },
+                                modifier = Modifier
+                                    .width(200.dp)
+                                    .height(6.dp)
+                                    .clip(RoundedCornerShape(3.dp)),
+                                color = FitnessBlue,
+                                trackColor = FitnessBlue.copy(alpha = 0.20f)
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = "${(loadProgress * 100).toInt()}%",
+                                fontSize = 12.sp,
+                                color = FitnessBlueDark.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun NavBtn(
-    icon: ImageVector,
-    desc: String,
-    enabled: Boolean,
-    onClick: () -> Unit
-) {
+private fun NavBtn(icon: ImageVector, desc: String, enabled: Boolean, onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier
-            .size(34.dp)
+            .size(36.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color.White.copy(alpha = if (enabled) 0.18f else 0.06f))
+            .background(if (enabled) Color.White.copy(alpha = 0.15f) else Color.Transparent)
     ) {
         Icon(
-            imageVector = icon,
+            icon,
             contentDescription = desc,
             tint = if (enabled) Color.White else Color.White.copy(alpha = 0.35f),
             modifier = Modifier.size(18.dp)
@@ -324,7 +366,7 @@ private fun NavBtn(
 
 @Preview(showBackground = true)
 @Composable
-private fun WebScreenPreview() {
+fun WebScreenPreview() {
     FitnessPersonalAppTheme {
         WebScreen()
     }
