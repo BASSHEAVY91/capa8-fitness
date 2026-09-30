@@ -89,7 +89,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
     var urlInput by rememberSaveable { mutableStateOf(HOME_URL) }
     var pageTitle by remember { mutableStateOf("Nutricion - OMS") }
     var loadProgress by remember { mutableFloatStateOf(0f) }
-    var isLoading by remember { mutableStateOf(true) }
+    var isLoading by remember { mutableStateOf(false) }
     var hasError by remember { mutableStateOf(false) }
     var canGoBack by remember { mutableStateOf(false) }
     var canGoForward by remember { mutableStateOf(false) }
@@ -240,9 +240,6 @@ fun WebScreen(modifier: Modifier = Modifier) {
         }
 
         // ── WebView ───────────────────────────────────────────────────────────
-        // Loading is indicated by the spinner in the toolbar and the thin
-        // LinearProgressIndicator above; no full-screen overlay is used so the
-        // app navigation bar (bottom menu) is never obscured.
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -259,6 +256,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
                         settings.builtInZoomControls = true
                         settings.displayZoomControls = false
                         settings.setSupportZoom(true)
+                        setBackgroundColor(android.graphics.Color.argb(255, 245, 247, 250))
                         webViewClient = object : WebViewClient() {
                             override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) {
                                 isLoading = true
@@ -276,6 +274,10 @@ fun WebScreen(modifier: Modifier = Modifier) {
                                 canGoBack = view.canGoBack()
                                 canGoForward = view.canGoForward()
                             }
+                            override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
+                                canGoBack = view.canGoBack()
+                                canGoForward = view.canGoForward()
+                            }
                             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
                                 if (request.isForMainFrame) {
                                     isLoading = false
@@ -286,7 +288,7 @@ fun WebScreen(modifier: Modifier = Modifier) {
                         webChromeClient = object : WebChromeClient() {
                             override fun onProgressChanged(view: WebView, newProgress: Int) {
                                 loadProgress = newProgress / 100f
-                                isLoading = newProgress < 100
+                                if (newProgress >= 100) isLoading = false
                             }
                             override fun onReceivedTitle(view: WebView, title: String) {
                                 pageTitle = title
@@ -298,6 +300,59 @@ fun WebScreen(modifier: Modifier = Modifier) {
                 },
                 update = { wv -> webViewRef = wv }
             )
+
+            // Skeleton overlay – fades away once the page has rendered enough
+            Column(modifier = Modifier.fillMaxSize()) {
+            AnimatedVisibility(
+                visible = isLoading && loadProgress < 0.5f,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF5F7FA))
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Spacer(Modifier.height(8.dp))
+                    // Skeleton lines
+                    for (i in 0..2) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(if (i == 2) 0.6f else 1f)
+                                .height(14.dp)
+                                .background(Color(0xFFE0E0E0), RoundedCornerShape(7.dp))
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .background(Color(0xFFE8EAF6), RoundedCornerShape(12.dp))
+                    )
+                    for (i in 0..3) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(if (i % 2 == 1) 0.75f else 1f)
+                                .height(12.dp)
+                                .background(Color(0xFFE0E0E0), RoundedCornerShape(6.dp))
+                        )
+                    }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(36.dp),
+                            color = FitnessBlue,
+                            strokeWidth = 3.dp
+                        )
+                    }
+                }
+            }
+            } // end Column wrapper
         }
     }
 }

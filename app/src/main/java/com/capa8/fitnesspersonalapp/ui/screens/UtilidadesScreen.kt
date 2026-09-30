@@ -226,14 +226,19 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp
 
-    val horizontalPadding = if (screenWidthDp < 360) 8.dp else 16.dp
-    val verticalPadding = if (screenWidthDp < 360) 8.dp else 12.dp
-    val timeFontSize = if (screenWidthDp < 360) 38.sp else 50.sp
-    val circleSize   = if (screenWidthDp < 360) 56.dp else 68.dp
-    val iconSize     = if (screenWidthDp < 360) 26.dp else 34.dp
-    val buttonsSpace = if (screenWidthDp < 360) 12.dp else 20.dp
-    val emojiFontSize = if (screenWidthDp < 360) 18.sp else 22.sp
-    val emojiPaddingV = if (screenWidthDp < 360) 6.dp else 8.dp
+    val horizontalPadding  = if (screenWidthDp < 370) 6.dp  else 16.dp
+    val verticalPadding    = if (screenWidthDp < 370) 8.dp  else 12.dp
+    val timeFontSize       = if (screenWidthDp < 370) 34.sp else 50.sp
+    val circleSize         = if (screenWidthDp < 370) 50.dp else 68.dp
+    val iconSize           = if (screenWidthDp < 370) 24.dp else 34.dp
+    val buttonsSpace       = if (screenWidthDp < 370) 8.dp  else 20.dp
+    val emojiFontSize      = if (screenWidthDp < 370) 15.sp else 22.sp
+    val emojiPaddingV      = if (screenWidthDp < 370) 4.dp  else 8.dp
+    val cardInnerHPadding  = if (screenWidthDp < 370) 10.dp else 20.dp
+    val emojiLabelFontSize = if (screenWidthDp < 340) 7.sp  else if (screenWidthDp < 370) 8.sp else 9.sp
+    val chipHPadding       = if (screenWidthDp < 370) 5.dp  else 10.dp
+    val chipFontSize       = if (screenWidthDp < 370) 10.sp else 11.sp
+    val weeklyStackRows    = screenWidthDp < 370
 
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
@@ -352,7 +357,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp)) {
                 CollapsibleHeader(Icons.Filled.Book, "Bit\u00e1cora de Entrenamiento", bitacoraExpanded) {
                     bitacoraExpanded = !bitacoraExpanded
                 }
@@ -395,14 +400,16 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                                 ) {
                                     Text(emoji, fontSize = emojiFontSize)
                                     Spacer(Modifier.height(3.dp))
-                                    Text(
-                                        EMOJI_LABELS[idx], fontSize = 9.sp,
-                                        maxLines = 1,
-                                        color = if (selected) FitnessBlue else ContentTextColor,
-                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+                                    if (screenWidthDp >= 320) {
+                                        Text(
+                                            EMOJI_LABELS[idx], fontSize = emojiLabelFontSize,
+                                            maxLines = 1,
+                                            color = if (selected) FitnessBlue else ContentTextColor,
+                                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -457,7 +464,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp)) {
                 CollapsibleHeader(Icons.Filled.RestaurantMenu, "Nutrición", nutricionExpanded) {
                     nutricionExpanded = !nutricionExpanded
                 }
@@ -482,21 +489,26 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     ActivityLevel.entries.forEach { lvl ->
                                         val selected = lvl == activityLevel
+                                        val shortLabel = when (lvl) {
+                                            ActivityLevel.Sedentario -> if (screenWidthDp < 370) "Sed." else lvl.label
+                                            ActivityLevel.Moderado   -> if (screenWidthDp < 370) "Mod." else lvl.label
+                                            ActivityLevel.Alto       -> lvl.label
+                                        }
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .background(if (selected) FitnessBlue else Color.Transparent, RoundedCornerShape(8.dp))
                                                 .border(1.dp, if (selected) FitnessBlue else Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
                                                 .clickable { activityLevel = lvl }
-                                                .padding(horizontal = 8.dp, vertical = 6.dp)
+                                                .padding(horizontal = chipHPadding, vertical = 6.dp)
                                         ) {
                                             Text(
-                                                lvl.label,
-                                                fontSize = 11.sp,
+                                                shortLabel,
+                                                fontSize = chipFontSize,
                                                 color = if (selected) Color.White else ContentTextColor,
                                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                                                 maxLines = 1,
@@ -508,21 +520,26 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                                 Spacer(Modifier.height(10.dp))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     GoalType.entries.forEach { g ->
                                         val selected = g == goalType
+                                        val shortLabel = when (g) {
+                                            GoalType.PerderGrasa  -> if (screenWidthDp < 370) "- Grasa" else g.label
+                                            GoalType.Mantener     -> g.label
+                                            GoalType.GanarMusculo -> if (screenWidthDp < 370) "+ Músculo" else g.label
+                                        }
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .background(if (selected) FitnessBlueDark else Color.Transparent, RoundedCornerShape(8.dp))
                                                 .border(1.dp, if (selected) FitnessBlueDark else Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
                                                 .clickable { goalType = g }
-                                                .padding(horizontal = 8.dp, vertical = 6.dp)
+                                                .padding(horizontal = chipHPadding, vertical = 6.dp)
                                         ) {
                                             Text(
-                                                g.label,
-                                                fontSize = 11.sp,
+                                                shortLabel,
+                                                fontSize = chipFontSize,
                                                 color = if (selected) Color.White else ContentTextColor,
                                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                                                 maxLines = 1,
@@ -668,7 +685,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 CollapsibleHeader(Icons.Filled.Timer, "Cron\u00f3metro", cronoExpanded) { cronoExpanded = !cronoExpanded }
                 AnimatedVisibility(visible = cronoExpanded, enter = expandVertically(), exit = shrinkVertically()) {
                     Column(
@@ -745,7 +762,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp)) {
                 CollapsibleHeader(Icons.Filled.Calculate, "Calculadora IMC", imcExpanded) { imcExpanded = !imcExpanded }
                 AnimatedVisibility(visible = imcExpanded, enter = expandVertically(), exit = shrinkVertically()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -807,7 +824,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp)) {
                 CollapsibleHeader(Icons.AutoMirrored.Filled.TrendingUp, "Progreso Semanal", progresoExpanded) { progresoExpanded = !progresoExpanded }
                 AnimatedVisibility(visible = progresoExpanded, enter = expandVertically(), exit = shrinkVertically()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -815,30 +832,69 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                         val maxKg = weeklyRecords.maxOfOrNull { it.kg } ?: 100f
                         weeklyRecords.forEachIndexed { idx, rec ->
                             Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
-                                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        rec.label,
-                                        fontSize = 13.sp,
-                                        color = ContentTextColor,
-                                        modifier = Modifier.weight(1.2f)
-                                    )
-                                    Text(
-                                        "%.1f kg".format(rec.kg),
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = FitnessBlueDark,
-                                        modifier = Modifier.weight(0.8f)
-                                    )
+                                if (weeklyStackRows) {
+                                    // Stacked layout for screens < 370dp
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            rec.label,
+                                            fontSize = 12.sp,
+                                            color = ContentTextColor,
+                                            modifier = Modifier.weight(1f),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            "%.1f kg".format(rec.kg),
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = FitnessBlueDark
+                                        )
+                                        IconButton(
+                                            onClick = { weeklyRecords = weeklyRecords.toMutableList().also { it.removeAt(idx) } },
+                                            modifier = Modifier.size(28.dp)
+                                        ) {
+                                            Icon(Icons.Filled.Close, "Eliminar", tint = Color(0xFFF44336), modifier = Modifier.size(16.dp))
+                                        }
+                                    }
                                     LinearProgressIndicator(
                                         progress = { if (maxKg > 0f) rec.kg / maxKg else 0f },
-                                        modifier = Modifier
-                                            .weight(2f)
-                                            .height(8.dp),
-                                        color = FitnessBlue, trackColor = FitnessBlue.copy(alpha = 0.18f),
+                                        modifier = Modifier.fillMaxWidth().height(7.dp).padding(end = 4.dp),
+                                        color = FitnessBlue,
+                                        trackColor = FitnessBlue.copy(alpha = 0.18f),
                                         strokeCap = StrokeCap.Round
                                     )
-                                    IconButton(onClick = { weeklyRecords = weeklyRecords.toMutableList().also { it.removeAt(idx) } }, modifier = Modifier.size(28.dp)) {
-                                        Icon(Icons.Filled.Close, "Eliminar", tint = Color(0xFFF44336), modifier = Modifier.size(16.dp))
+                                } else {
+                                    // Single-row layout for wider screens
+                                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            rec.label,
+                                            fontSize = 13.sp,
+                                            color = ContentTextColor,
+                                            modifier = Modifier.weight(1.2f)
+                                        )
+                                        Text(
+                                            "%.1f kg".format(rec.kg),
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = FitnessBlueDark,
+                                            modifier = Modifier.weight(0.8f)
+                                        )
+                                        LinearProgressIndicator(
+                                            progress = { if (maxKg > 0f) rec.kg / maxKg else 0f },
+                                            modifier = Modifier.weight(2f).height(8.dp),
+                                            color = FitnessBlue,
+                                            trackColor = FitnessBlue.copy(alpha = 0.18f),
+                                            strokeCap = StrokeCap.Round
+                                        )
+                                        IconButton(
+                                            onClick = { weeklyRecords = weeklyRecords.toMutableList().also { it.removeAt(idx) } },
+                                            modifier = Modifier.size(28.dp)
+                                        ) {
+                                            Icon(Icons.Filled.Close, "Eliminar", tint = Color(0xFFF44336), modifier = Modifier.size(16.dp))
+                                        }
                                     }
                                 }
                             }
