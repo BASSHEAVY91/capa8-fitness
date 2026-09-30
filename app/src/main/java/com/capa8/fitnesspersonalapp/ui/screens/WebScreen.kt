@@ -239,7 +239,10 @@ fun WebScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // ── WebView + loading overlay ─────────────────────────────────────────
+        // ── WebView ───────────────────────────────────────────────────────────
+        // Loading is indicated by the spinner in the toolbar and the thin
+        // LinearProgressIndicator above; no full-screen overlay is used so the
+        // app navigation bar (bottom menu) is never obscured.
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -295,52 +298,6 @@ fun WebScreen(modifier: Modifier = Modifier) {
                 },
                 update = { wv -> webViewRef = wv }
             )
-
-            // ── Full-screen loading overlay ───────────────────────────────────
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFFF5F7FA)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(56.dp),
-                            color = FitnessBlue,
-                            strokeWidth = 4.dp
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "Cargando página...",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = FitnessBlueDark
-                        )
-                        if (loadProgress in 0.01f..0.99f) {
-                            Spacer(Modifier.height(12.dp))
-                            LinearProgressIndicator(
-                                progress = { loadProgress },
-                                modifier = Modifier
-                                    .width(200.dp)
-                                    .height(6.dp)
-                                    .clip(RoundedCornerShape(3.dp)),
-                                color = FitnessBlue,
-                                trackColor = FitnessBlue.copy(alpha = 0.20f)
-                            )
-                            Spacer(Modifier.height(6.dp))
-                            Text(
-                                text = "${(loadProgress * 100).toInt()}%",
-                                fontSize = 12.sp,
-                                color = FitnessBlueDark.copy(alpha = 0.6f)
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }

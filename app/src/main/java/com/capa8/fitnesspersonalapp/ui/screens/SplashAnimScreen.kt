@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlin.math.cos
@@ -269,16 +270,16 @@ fun SplashAnimScreen(isReady: Boolean = true, onFinished: () -> Unit) {
     // Main animation sequence
     LaunchedEffect(Unit) {
         bgAlpha.animateTo(1f, tween(280))
-        delay(120)
+        delay(120.milliseconds)
         logoAlpha.animateTo(1f, tween(220))
         logoScale.animateTo(1f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium))
-        delay(80)
+        delay(80.milliseconds)
         nameOffsetY.animateTo(0f, tween(380, easing = EaseOutCubic))
         nameAlpha.animateTo(1f, tween(380))
-        delay(180)
+        delay(180.milliseconds)
         phraseAlpha.animateTo(1f, tween(480))
         // Espera mínima visual (da tiempo a leer la frase)
-        delay(1200L)
+        delay(1200.milliseconds)
         // Bloquea hasta que la app esté lista (carga de datos)
         snapshotFlow { currentIsReady }.first { it }
         onFinished()
@@ -286,13 +287,13 @@ fun SplashAnimScreen(isReady: Boolean = true, onFinished: () -> Unit) {
 
     // Pulse ring — independent infinite loop
     LaunchedEffect(Unit) {
-        delay(560)
+        delay(560.milliseconds)
         while (true) {
             pulseScale.animateTo(1.60f, tween(720, easing = EaseOutCubic))
             pulseAlpha.animateTo(0f, tween(480))
             pulseScale.snapTo(1f)
             pulseAlpha.snapTo(0.50f)
-            delay(180)
+            delay(180.milliseconds)
         }
     }
 

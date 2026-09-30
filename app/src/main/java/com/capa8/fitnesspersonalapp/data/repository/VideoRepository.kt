@@ -22,13 +22,6 @@ object VideoRepository {
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
     private const val MP4_2 =
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
-    private const val MP4_3 =
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-    private const val MP4_4 =
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4"
-    private const val MP4_5 =
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
-
     // ── YouTube embed base ────────────────────────────────────────────────────
     private fun yt(id: String) =
         "https://www.youtube.com/embed/$id?rel=0&modestbranding=1"
@@ -140,11 +133,4 @@ object VideoRepository {
         if (category == VideoCategory.ALL) catalogue
         else catalogue.filter { it.category == category }
 
-    /** Returns only the featured / highlighted videos for the hero section. */
-    fun getFeatured(): List<VideoItem> =
-        catalogue.filter { it.source == VideoSource.FEATURED }
-
-    /** Returns videos grouped by source for a multi-section layout. */
-    fun getGroupedBySource(): Map<VideoSource, List<VideoItem>> =
-        catalogue.groupBy { it.source }
 }

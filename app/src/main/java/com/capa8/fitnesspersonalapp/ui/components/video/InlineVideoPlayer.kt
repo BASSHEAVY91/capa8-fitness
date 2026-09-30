@@ -102,7 +102,7 @@ private fun YoutubeWebPlayer(embedUrl: String, constrainToAspectRatio: Boolean) 
                         // SurfaceView). Setting LAYER_TYPE_SOFTWARE forces the WebView
                         // and its internal video surface onto the same software render
                         // layer as Compose, making the video visible.
-                        setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null)
+                        setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 
                         val handler = Handler(Looper.getMainLooper())
                         var elapsed = 0
@@ -280,7 +280,10 @@ private fun ExoVideoPlayer(videoUrl: String, constrainToAspectRatio: Boolean) {
     }
     DisposableEffect(videoUrl) { onDispose { exoPlayer.release() } }
     AndroidView(
-        factory = { ctx -> LayoutInflater.from(ctx).inflate(R.layout.exo_player_texture, null, false) as PlayerView },
+        factory = { ctx ->
+            val parent = android.widget.FrameLayout(ctx)
+            LayoutInflater.from(ctx).inflate(R.layout.exo_player_texture, parent, false) as PlayerView
+        },
         update = { it.player = exoPlayer },
         modifier = if (constrainToAspectRatio) Modifier.fillMaxWidth().aspectRatio(16f/9f) else Modifier.fillMaxSize()
     )

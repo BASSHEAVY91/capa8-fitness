@@ -1,23 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dumbbell foreground icon — matches DumbbellIcon Canvas in SplashAnimScreen.kt exactly.
+
+    Coordinate system: 108 × 108 viewport.
+    The dumbbell is drawn in the 100 × 52 dp canvas (same proportions as the Compose
+    DumbbellIcon composable called with Modifier.size(100.dp, 52.dp)), centred at (54, 54).
+    Offset applied: x += 4, y += 28.
+
+    Drawing order (back → front):
+      1. Left inner plate   – white 60 % alpha
+      2. Left outer plate   – white
+      3. Left collar ring   – #FF6B35 accent
+      4. Centre grip bar    – white (pill shape)
+      5. Right collar ring  – #FF6B35 accent
+      6. Right outer plate  – white
+      7. Right inner plate  – white 60 % alpha
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Simple dumbbell icon representing fitness -->
+
+    <!-- ① Left inner plate  (x=8.5, y=39.44, w=7, h=29.12, rx=3) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M30,50 L78,50 L78,58 L30,58 Z" />
+        android:fillAlpha="0.6"
+        android:pathData="M 11.5,39.44
+                          H 12.5
+                          Q 15.5,39.44 15.5,42.44
+                          V 65.56
+                          Q 15.5,68.56 12.5,68.56
+                          H 11.5
+                          Q 8.5,68.56 8.5,65.56
+                          V 42.44
+                          Q 8.5,39.44 11.5,39.44
+                          Z" />
+
+    <!-- ② Left outer plate  (x=15.5, y=34.76, w=10, h=38.48, rx=4) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M22,42 L32,42 L32,66 L22,66 Z" />
+        android:pathData="M 19.5,34.76
+                          H 21.5
+                          Q 25.5,34.76 25.5,38.76
+                          V 69.24
+                          Q 25.5,73.24 21.5,73.24
+                          H 19.5
+                          Q 15.5,73.24 15.5,69.24
+                          V 38.76
+                          Q 15.5,34.76 19.5,34.76
+                          Z" />
+
+    <!-- ③ Left collar ring  (x=25.5, y=45.68, w=6.5, h=16.64, rx=3)  accent -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M 28.5,45.68
+                          H 29
+                          Q 32,45.68 32,48.68
+                          V 59.32
+                          Q 32,62.32 29,62.32
+                          H 28.5
+                          Q 25.5,62.32 25.5,59.32
+                          V 48.68
+                          Q 25.5,45.68 28.5,45.68
+                          Z" />
+
+    <!-- ④ Centre grip bar  (x=32, y=49.84, w=44, h=8.32, rx=4.16) pill -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M76,42 L86,42 L86,66 L76,66 Z" />
+        android:pathData="M 36.16,49.84
+                          H 71.84
+                          Q 76,49.84 76,54
+                          Q 76,58.16 71.84,58.16
+                          H 36.16
+                          Q 32,58.16 32,54
+                          Q 32,49.84 36.16,49.84
+                          Z" />
+
+    <!-- ⑤ Right collar ring  (x=76, y=45.68, w=6.5, h=16.64, rx=3)  accent -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M 79,45.68
+                          H 79.5
+                          Q 82.5,45.68 82.5,48.68
+                          V 59.32
+                          Q 82.5,62.32 79.5,62.32
+                          H 79
+                          Q 76,62.32 76,59.32
+                          V 48.68
+                          Q 76,45.68 79,45.68
+                          Z" />
+
+    <!-- ⑥ Right outer plate  (x=82.5, y=34.76, w=10, h=38.48, rx=4) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M14,46 L24,46 L24,62 L14,62 Z" />
+        android:pathData="M 86.5,34.76
+                          H 88.5
+                          Q 92.5,34.76 92.5,38.76
+                          V 69.24
+                          Q 92.5,73.24 88.5,73.24
+                          H 86.5
+                          Q 82.5,73.24 82.5,69.24
+                          V 38.76
+                          Q 82.5,34.76 86.5,34.76
+                          Z" />
+
+    <!-- ⑦ Right inner plate  (x=92.5, y=39.44, w=7, h=29.12, rx=3) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M84,46 L94,46 L94,62 L84,62 Z" />
+        android:fillAlpha="0.6"
+        android:pathData="M 95.5,39.44
+                          H 96.5
+                          Q 99.5,39.44 99.5,42.44
+                          V 65.56
+                          Q 99.5,68.56 96.5,68.56
+                          H 95.5
+                          Q 92.5,68.56 92.5,65.56
+                          V 42.44
+                          Q 92.5,39.44 95.5,39.44
+                          Z" />
+
 </vector>

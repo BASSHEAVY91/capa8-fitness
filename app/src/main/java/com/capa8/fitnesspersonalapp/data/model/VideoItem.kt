@@ -28,20 +28,17 @@ data class VideoItem(
     val duration: String,
     val instructor: String,
     val views: String = ""
-) {
-    /** True for videos added by the user at runtime (not part of the static catalogue). */
-    val isUserAdded: Boolean get() = id.startsWith("user_")
-}
+)
 
 /** Origin of the video — drives which renderer is used in the inline player. */
-enum class VideoSource(val label: String, val colorHex: Long) {
-    YOUTUBE("YouTube",   0xFFCC0000L),
-    DIRECT_MP4("Directo", 0xFF1B7A34L),
-    FEATURED("Destacado", 0xFF4A90D9L),
+enum class VideoSource(val label: String) {
+    YOUTUBE("YouTube"),
+    DIRECT_MP4("Directo"),
+    FEATURED("Destacado"),
     /** Vimeo, Instagram embeds, or any other web-based embed URL loaded in a WebView. */
-    WEBVIEW("Web Embed", 0xFF7B2FBEL),
+    WEBVIEW("Web Embed"),
     /** Video stored on the device (content:// or file:// URI). Played with ExoPlayer. */
-    LOCAL("Local", 0xFFE87722L)
+    LOCAL("Local")
 }
 
 /** Categories for the horizontal filter tab row. */

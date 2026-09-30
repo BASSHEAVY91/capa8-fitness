@@ -1,7 +1,7 @@
 package com.capa8.fitnesspersonalapp.ui.components.video
 
 import android.media.MediaMetadataRetriever
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -322,16 +322,17 @@ private fun LocalVideoThumbnail(uri: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val bitmap by produceState<android.graphics.Bitmap?>(initialValue = null, uri) {
         value = withContext(Dispatchers.IO) {
+            val retriever = MediaMetadataRetriever()
             try {
-                MediaMetadataRetriever().use { retriever ->
-                    retriever.setDataSource(context, Uri.parse(uri))
-                    retriever.getFrameAtTime(
-                        0L,
-                        MediaMetadataRetriever.OPTION_CLOSEST_SYNC
-                    )
-                }
+                retriever.setDataSource(context, uri.toUri())
+                retriever.getFrameAtTime(
+                    0L,
+                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                )
             } catch (_: Exception) {
                 null
+            } finally {
+                retriever.release()
             }
         }
     }

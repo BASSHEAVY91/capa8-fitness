@@ -57,9 +57,9 @@ class VideoViewModel : ViewModel() {
         duration: String
     ) {
         val url = rawUrl.trim()
-        var source: VideoSource = VideoSource.WEBVIEW
-        var finalUrl: String = url
-        var thumbnailUrl: String = "https://picsum.photos/seed/${title.hashCode()}/640/360"
+        var source = VideoSource.WEBVIEW
+        var finalUrl = url
+        var thumbnailUrl = "https://picsum.photos/seed/${title.hashCode()}/640/360"
 
         when {
             // ── YouTube ──────────────────────────────────────────────────────
