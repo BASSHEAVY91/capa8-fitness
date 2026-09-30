@@ -244,11 +244,11 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
     val prefs = remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
 
     // ── Section expanded states (persisted) ───────────────────────────────────
-    var bitacoraExpanded  by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_BIT, true)) }
-    var cronoExpanded     by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_CRO, true)) }
-    var imcExpanded       by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_IMC, true)) }
-    var progresoExpanded  by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_PRO, true)) }
-    var nutricionExpanded by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_NUT, true)) }
+    var bitacoraExpanded  by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_BIT, false)) }
+    var cronoExpanded     by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_CRO, false)) }
+    var imcExpanded       by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_IMC, false)) }
+    var progresoExpanded  by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_PRO, false)) }
+    var nutricionExpanded by remember { mutableStateOf(prefs.getBoolean(KEY_EXP_NUT, false)) }
 
     LaunchedEffect(bitacoraExpanded)  { prefs.edit().putBoolean(KEY_EXP_BIT, bitacoraExpanded).apply() }
     LaunchedEffect(cronoExpanded)     { prefs.edit().putBoolean(KEY_EXP_CRO, cronoExpanded).apply() }
