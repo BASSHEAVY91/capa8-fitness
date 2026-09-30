@@ -39,7 +39,9 @@ enum class VideoSource(val label: String, val colorHex: Long) {
     DIRECT_MP4("Directo", 0xFF1B7A34L),
     FEATURED("Destacado", 0xFF4A90D9L),
     /** Vimeo, Instagram embeds, or any other web-based embed URL loaded in a WebView. */
-    WEBVIEW("Web Embed", 0xFF7B2FBEL)
+    WEBVIEW("Web Embed", 0xFF7B2FBEL),
+    /** Video stored on the device (content:// or file:// URI). Played with ExoPlayer. */
+    LOCAL("Local", 0xFFE87722L)
 }
 
 /** Categories for the horizontal filter tab row. */

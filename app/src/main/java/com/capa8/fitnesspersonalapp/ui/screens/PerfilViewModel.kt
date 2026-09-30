@@ -39,7 +39,8 @@ class PerfilViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Called when the photo picker returns a saved path. */
     fun setPhotoPath(path: String) {
-        profile = profile.copy(photoPath = path)
+        profile    = profile.copy(photoPath = path)
+        tmpProfile = tmpProfile.copy(photoPath = path)   // Bug fix: keep tmpProfile in sync
         repo.saveProfile(profile)
     }
 

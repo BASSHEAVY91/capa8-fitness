@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -15,6 +16,9 @@ import androidx.compose.ui.unit.dp
 import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlue
 import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlueDark
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * SRP: renders profile header only — photo picker, display/edit toggle.
@@ -34,11 +38,22 @@ internal fun PerfilHeaderCard(
     onCancel: () -> Unit,
 ) {
     val context = LocalContext.current
+    val scope   = rememberCoroutineScope()
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         val dest = File(context.filesDir, "profile_photo.jpg")
-        context.contentResolver.openInputStream(uri)?.use { dest.outputStream().use { o -> it.copyTo(o) } }
-        onPhotoPath(dest.absolutePath)
+        // Copia en hilo IO para no bloquear el main thread.
+        // onPhotoPath solo se llama si la copia fue exitosa → evita guardar
+        // rutas inválidas en SharedPreferences cuando openInputStream falla.
+        scope.launch(Dispatchers.IO) {
+            val ok = try {
+                context.contentResolver.openInputStream(uri)?.use { ins ->
+                    dest.outputStream().use { out -> ins.copyTo(out) }
+                    true
+                } ?: false
+            } catch (_: Exception) { false }
+            if (ok) withContext(Dispatchers.Main) { onPhotoPath(dest.absolutePath) }
+        }
     }
     Card(
         modifier = Modifier.fillMaxWidth(),

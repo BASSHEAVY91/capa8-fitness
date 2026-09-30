@@ -57,8 +57,9 @@ class VideoViewModel : ViewModel() {
         duration: String
     ) {
         val url = rawUrl.trim()
-        val source: VideoSource
-        val finalUrl: String
+        var source: VideoSource = VideoSource.WEBVIEW
+        var finalUrl: String = url
+        var thumbnailUrl: String = "https://picsum.photos/seed/${title.hashCode()}/640/360"
 
         when {
             // ── YouTube ──────────────────────────────────────────────────────
@@ -68,10 +69,15 @@ class VideoViewModel : ViewModel() {
                 finalUrl = if (id != null)
                     "https://www.youtube.com/embed/$id?rel=0&modestbranding=1"
                 else url
+                if (id != null)
+                    thumbnailUrl = "https://img.youtube.com/vi/$id/hqdefault.jpg"
             }
             url.contains("youtube.com/embed") -> {
                 source = VideoSource.YOUTUBE
                 finalUrl = url
+                val id = Regex("embed/([a-zA-Z0-9_-]{11})").find(url)?.groupValues?.get(1)
+                if (id != null)
+                    thumbnailUrl = "https://img.youtube.com/vi/$id/hqdefault.jpg"
             }
 
             // ── Vimeo ────────────────────────────────────────────────────────
@@ -85,6 +91,13 @@ class VideoViewModel : ViewModel() {
             url.contains("player.vimeo.com") -> {
                 source = VideoSource.WEBVIEW
                 finalUrl = url
+            }
+
+            // ── Local device video (content:// or file:// URI) ────────────────
+            url.startsWith("content://") || url.startsWith("file://") -> {
+                source = VideoSource.LOCAL
+                finalUrl = url
+                thumbnailUrl = "" // will be extracted from the video frame at display time
             }
 
             // ── Direct video stream (.mp4 / .m3u8 / .webm / .ogg) ───────────
@@ -105,7 +118,7 @@ class VideoViewModel : ViewModel() {
                 id = "user_${UUID.randomUUID()}",
                 title = title.trim(),
                 description = "Video agregado por el usuario.",
-                thumbnailUrl = "https://picsum.photos/seed/${title.hashCode()}/640/360",
+                thumbnailUrl = thumbnailUrl,
                 videoUrl = finalUrl,
                 source = source,
                 category = category,
@@ -119,14 +132,10 @@ class VideoViewModel : ViewModel() {
     // ── Delete ────────────────────────────────────────────────────────────────
 
     /**
-     * Removes a video by [id].
-     * Only user-added videos (id starts with "user_") can be deleted;
-     * catalogue videos are silently ignored.
+     * Removes a video by [id]. Works for both catalogue and user-added videos.
      */
     fun deleteVideo(id: String) {
-        if (id.startsWith("user_")) {
-            _videos.removeIf { it.id == id }
-        }
+        _videos.removeIf { it.id == id }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

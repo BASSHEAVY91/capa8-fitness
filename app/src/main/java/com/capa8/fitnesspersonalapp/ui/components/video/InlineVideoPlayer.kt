@@ -58,7 +58,7 @@ fun InlineVideoPlayer(video: VideoItem, modifier: Modifier = Modifier, constrain
         when (video.source) {
             VideoSource.YOUTUBE -> YoutubeWebPlayer(video.videoUrl, constrainToAspectRatio)
             VideoSource.WEBVIEW -> GenericWebPlayer(video.videoUrl, constrainToAspectRatio)
-            VideoSource.DIRECT_MP4, VideoSource.FEATURED -> ExoVideoPlayer(video.videoUrl, constrainToAspectRatio)
+            VideoSource.DIRECT_MP4, VideoSource.FEATURED, VideoSource.LOCAL -> ExoVideoPlayer(video.videoUrl, constrainToAspectRatio)
         }
     }
 }

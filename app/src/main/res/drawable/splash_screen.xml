@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Splash screen background shown while the app's first frame is being rendered.
+    Works on all API levels (including Android 9 / API 28) where the OS displays
+    the activity windowBackground before Compose paints its first frame.
+
+    Layer 1 → solid brand-blue fill
+    Layer 2 → dumbbell foreground icon centrado (same vector used by the launcher)
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background: brand blue -->
+    <item>
+        <color android:color="@color/ic_launcher_background" />
+    </item>
+
+    <!-- Foreground: launcher icon, centred and sized to ~20 % of screen -->
+    <item
+        android:gravity="center"
+        android:width="108dp"
+        android:height="108dp">
+        <drawable>@drawable/ic_launcher_foreground</drawable>
+    </item>
+
+</layer-list>

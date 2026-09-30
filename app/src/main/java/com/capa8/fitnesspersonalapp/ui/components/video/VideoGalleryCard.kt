@@ -1,5 +1,8 @@
 package com.capa8.fitnesspersonalapp.ui.components.video
 
+import android.media.MediaMetadataRetriever
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,32 +27,33 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import android.webkit.WebView
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.capa8.fitnesspersonalapp.data.model.VideoItem
 import com.capa8.fitnesspersonalapp.data.model.VideoSource
 import com.capa8.fitnesspersonalapp.ui.theme.ContentTitleColor
 import com.capa8.fitnesspersonalapp.ui.theme.FitnessBlue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-/**
- * Card shown in the video gallery grid/list.
- *
- * Displays a thumbnail (loaded via WebView img tag to avoid adding
- * a Coil/Glide dependency), an overlay play button, a source badge,
- * the video title, instructor name and duration.
- *
- * Tapping the card invokes [onClick] — the parent composable is
- * responsible for showing the inline player bottom sheet.
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// VideoGalleryCard
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Composable
 fun VideoGalleryCard(
     video: VideoItem,
@@ -65,7 +69,6 @@ fun VideoGalleryCard(
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column {
-            // ── Thumbnail ─────────────────────────────────────────────────────
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -74,15 +77,13 @@ fun VideoGalleryCard(
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                // Load thumbnail image via a tiny WebView so no extra library is needed
-                ThumbnailWebView(
-                    url = video.thumbnailUrl,
+                VideoThumbnail(
+                    video = video,
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(16f / 9f)
                 )
 
-                // Dark gradient overlay at the bottom
                 Box(
                     modifier = Modifier
                         .matchParentSize()
@@ -97,7 +98,6 @@ fun VideoGalleryCard(
                         )
                 )
 
-                // Play button circle
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -112,7 +112,6 @@ fun VideoGalleryCard(
                     )
                 }
 
-                // Duration badge – bottom-right
                 Text(
                     text = video.duration,
                     color = Color.White,
@@ -125,7 +124,6 @@ fun VideoGalleryCard(
                         .padding(horizontal = 5.dp, vertical = 2.dp)
                 )
 
-                // Source badge – bottom-left
                 SourceBadge(
                     source = video.source,
                     modifier = Modifier
@@ -134,7 +132,6 @@ fun VideoGalleryCard(
                 )
             }
 
-            // ── Info ──────────────────────────────────────────────────────────
             Column(modifier = Modifier.padding(10.dp)) {
                 Text(
                     text = video.title,
@@ -177,7 +174,7 @@ fun VideoGalleryCard(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Featured / hero card – wider, with a slightly different style
+// FeaturedVideoCard
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
@@ -202,8 +199,8 @@ fun FeaturedVideoCard(
                     .background(Color(0xFF1A1A2E)),
                 contentAlignment = Alignment.Center
             ) {
-                ThumbnailWebView(
-                    url = video.thumbnailUrl,
+                VideoThumbnail(
+                    video = video,
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(16f / 9f)
@@ -281,7 +278,8 @@ fun FeaturedVideoCard(
                     text = video.instructor,
                     color = Color(0xFF666666),
                     fontSize = 12.sp,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -289,69 +287,87 @@ fun FeaturedVideoCard(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Source coloured badge
+// VideoThumbnail – selects Coil or local-frame extractor
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Renders the thumbnail for [video]:
+ *  - LOCAL with blank URL → extracts first frame via [MediaMetadataRetriever] on IO thread
+ *  - Everything else      → Coil [AsyncImage] (HTTP caching, crossfade)
+ */
+@Composable
+private fun VideoThumbnail(video: VideoItem, modifier: Modifier = Modifier) {
+    if (video.source == VideoSource.LOCAL && video.thumbnailUrl.isBlank()) {
+        LocalVideoThumbnail(uri = video.videoUrl, modifier = modifier)
+    } else {
+        val context = LocalContext.current
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(video.thumbnailUrl)
+                .crossfade(300)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+        )
+    }
+}
+
+/**
+ * Extracts and displays the first video frame for a LOCAL video.
+ * Falls back to an empty dark box when extraction fails.
+ */
+@Composable
+private fun LocalVideoThumbnail(uri: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val bitmap by produceState<android.graphics.Bitmap?>(initialValue = null, uri) {
+        value = withContext(Dispatchers.IO) {
+            try {
+                MediaMetadataRetriever().use { retriever ->
+                    retriever.setDataSource(context, Uri.parse(uri))
+                    retriever.getFrameAtTime(
+                        0L,
+                        MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                    )
+                }
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+
+    if (bitmap != null) {
+        Image(
+            bitmap = bitmap!!.asImageBitmap(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+        )
+    } else {
+        Box(modifier = modifier.background(Color(0xFF1A1A2E)))
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SourceBadge
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
-private fun SourceBadge(source: VideoSource, modifier: Modifier = Modifier) {
-    val (label, bgColor) = when (source) {
-        VideoSource.YOUTUBE    -> "▶ YouTube"   to Color(0xFFCC0000)
-        VideoSource.DIRECT_MP4 -> "⬇ Directo"  to Color(0xFF1B7A34)
-        VideoSource.FEATURED   -> "⭐ Destacado" to Color(0xFF4A90D9)
-        VideoSource.WEBVIEW    -> "🌐 Web"       to Color(0xFF7B2FBE)
+fun SourceBadge(source: VideoSource, modifier: Modifier = Modifier) {
+    val (label, bg) = when (source) {
+        VideoSource.YOUTUBE   -> "YT"     to Color(0xCCFF0000)
+        VideoSource.DIRECT_MP4 -> "MP4"  to Color(0xCC0077CC)
+        VideoSource.LOCAL     -> "LOCAL"  to Color(0xCC00AA44)
+        VideoSource.WEBVIEW   -> "WEB"   to Color(0xCC884EA0)
+        VideoSource.FEATURED  -> "★"     to Color(0xCCF39C12)
     }
     Text(
         text = label,
         color = Color.White,
-        fontSize = 10.sp,
+        fontSize = 9.sp,
         fontWeight = FontWeight.Bold,
         modifier = modifier
-            .background(bgColor, RoundedCornerShape(4.dp))
+            .background(bg, RoundedCornerShape(4.dp))
             .padding(horizontal = 5.dp, vertical = 2.dp)
     )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Lightweight thumbnail loader via WebView (avoids Coil/Glide dependency)
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun ThumbnailWebView(url: String, modifier: Modifier = Modifier) {
-    AndroidView(
-        factory = { ctx ->
-            WebView(ctx).apply {
-                settings.apply {
-                    javaScriptEnabled = false
-                    loadWithOverviewMode = true
-                    useWideViewPort = true
-                }
-                isClickable = false
-                isFocusable = false
-                setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                loadData(
-                    buildThumbnailHtml(url),
-                    "text/html",
-                    "utf-8"
-                )
-            }
-        },
-        modifier = modifier
-    )
-}
-
-private fun buildThumbnailHtml(imgUrl: String): String = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <style>
-            * { margin:0; padding:0; }
-            body { background:#1A1A2E; width:100%; height:100%; overflow:hidden; }
-            img { width:100%; height:100%; object-fit:cover; display:block; }
-        </style>
-    </head>
-    <body>
-        <img src="$imgUrl" alt="" onerror="this.style.display='none'"/>
-    </body>
-    </html>
-""".trimIndent()

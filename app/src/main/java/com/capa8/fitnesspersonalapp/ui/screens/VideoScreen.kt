@@ -22,11 +22,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -103,6 +106,7 @@ fun VideoScreen(
     val youtubeVideos = filteredVideos.filter { it.source == VideoSource.YOUTUBE }
     val directVideos  = filteredVideos.filter { it.source == VideoSource.DIRECT_MP4 }
     val webVideos     = filteredVideos.filter { it.source == VideoSource.WEBVIEW }
+    val localVideos   = filteredVideos.filter { it.source == VideoSource.LOCAL }
     val isSearchActive = viewModel.searchQuery.isNotBlank()
 
     Scaffold(
@@ -145,7 +149,7 @@ fun VideoScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -272,9 +276,29 @@ fun VideoScreen(
                     }
                 }
 
+                // ── Local device videos ───────────────────────────────────────
+                if (localVideos.isNotEmpty()) {
+                    item {
+                        SectionHeader(
+                            "📁", "Locales",
+                            "${localVideos.size} videos del dispositivo"
+                        )
+                    }
+                    items(localVideos, key = { it.id }) { video ->
+                        VideoGalleryCard(
+                            video = video,
+                            onClick = {
+                                selectedVideo = video
+                                scope.launch { sheetState.show() }
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                }
+
                 // ── Empty state ───────────────────────────────────────────────
                 val hasContent = youtubeVideos.isNotEmpty() || directVideos.isNotEmpty() ||
-                        webVideos.isNotEmpty() ||
+                        webVideos.isNotEmpty() || localVideos.isNotEmpty() ||
                         (!isSearchActive && selectedCategory == VideoCategory.ALL
                                 && featuredVideos.isNotEmpty())
                 if (!hasContent) {
@@ -364,16 +388,23 @@ private fun AddVideoDialog(
     var categoryExpanded by remember { mutableStateOf(false) }
     val isValid = title.isNotBlank() && url.isNotBlank()
 
+    // Launcher for picking a local video from the device
+    val videoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { url = it.toString() }
+    }
+
     // Detect source type for the helper label
     val detectedSource = when {
+        url.startsWith("content://") || url.startsWith("file://") -> "📁 Video local detectado ✓"
         url.contains("youtube.com") || url.contains("youtu.be") -> "▶ YouTube detectado ✓"
         url.contains("vimeo.com") -> "🎬 Vimeo detectado ✓"
-        url.isBlank() -> "Ingresa una URL (YouTube, Vimeo, MP4, etc.)"
+        url.isBlank() -> "Ingresa una URL o selecciona un video del dispositivo"
         url.matches(Regex(".*\\.(mp4|m3u8|webm|ogg|mov)(\\?.*)?$", RegexOption.IGNORE_CASE)) ->
             "⬇ Stream directo detectado ✓"
         else -> "🌐 URL web detectada ✓"
     }
     val sourceColor = when {
+        url.startsWith("content://") || url.startsWith("file://") -> Color(0xFFE87722)
         url.contains("youtube.com") || url.contains("youtu.be") -> Color(0xFFCC0000)
         url.contains("vimeo.com") -> Color(0xFF1AB7EA)
         url.isBlank() -> Color(0xFF888888)
@@ -413,6 +444,26 @@ private fun AddVideoDialog(
                         unfocusedContainerColor = Color.White
                     )
                 )
+
+                // Pick from device button
+                TextButton(
+                    onClick = { videoPicker.launch("video/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        Icons.Filled.FolderOpen,
+                        contentDescription = null,
+                        tint = FitnessBlue,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "Seleccionar video del dispositivo",
+                        color = FitnessBlue,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 13.sp
+                    )
+                }
 
                 // URL
                 OutlinedTextField(
@@ -466,17 +517,31 @@ private fun AddVideoDialog(
                     )
                     ExposedDropdownMenu(
                         expanded = categoryExpanded,
-                        onDismissRequest = { categoryExpanded = false }
+                        onDismissRequest = { categoryExpanded = false },
+                        modifier = Modifier.background(Color.White)
                     ) {
                         VideoCategory.entries
                             .filter { it != VideoCategory.ALL }
                             .forEach { cat ->
                                 DropdownMenuItem(
-                                    text = { Text(cat.label) },
+                                    text = {
+                                        Text(
+                                            cat.label,
+                                            color = if (cat == selectedCategory) FitnessBlue
+                                                    else Color(0xFF111111),
+                                            fontWeight = if (cat == selectedCategory)
+                                                FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
                                     onClick = {
                                         selectedCategory = cat
                                         categoryExpanded = false
-                                    }
+                                    },
+                                    modifier = Modifier.background(
+                                        if (cat == selectedCategory)
+                                            FitnessBlue.copy(alpha = 0.08f)
+                                        else Color.White
+                                    )
                                 )
                             }
                     }
@@ -676,15 +741,12 @@ private fun VideoPlayerSheet(
                         tint = Color(0xFFAAAAAA),
                         modifier = Modifier.size(22.dp)
                     )
-                    // Delete button — only shown for user-added videos
-                    if (video.isUserAdded) {
-                        IconButton(onClick = { onDelete(video.id) }) {
-                            Icon(
-                                Icons.Filled.Delete,
-                                contentDescription = "Eliminar video",
-                                tint = Color(0xFFFF5555)
-                            )
-                        }
+                    IconButton(onClick = { onDelete(video.id) }) {
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = "Eliminar video",
+                            tint = Color(0xFFFF5555)
+                        )
                     }
                     IconButton(onClick = onClose) {
                         Icon(
@@ -908,6 +970,7 @@ private fun SourceChip(source: VideoSource) {
         VideoSource.DIRECT_MP4 -> "⬇ Directo"  to Color(0xFF1B7A34)
         VideoSource.FEATURED   -> "⭐ Destacado" to FitnessBlue
         VideoSource.WEBVIEW    -> "🌐 Web"       to Color(0xFF7B2FBE)
+        VideoSource.LOCAL      -> "📁 Local"     to Color(0xFFE87722)
     }
     SuggestionChip(
         onClick = {},

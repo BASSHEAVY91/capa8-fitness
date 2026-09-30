@@ -1,4 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Main app theme (applied once Compose takes over) -->
     <style name="Theme.FitnessPersonalApp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!--
+        Splash-screen theme applied to MainActivity BEFORE the first Compose frame.
+        On Android 9 (API 28) the system draws windowBackground immediately at cold
+        start, so the user sees the brand colour + dumbbell icon instead of a blank
+        white screen.
+        MainActivity.onCreate() calls setTheme(Theme.FitnessPersonalApp) to switch
+        back before setContent{} runs.
+    -->
+    <style name="Theme.FitnessPersonalApp.Splash"
+        parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">#4A90D9</item>
+        <item name="android:navigationBarColor">#4A90D9</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+
 </resources>

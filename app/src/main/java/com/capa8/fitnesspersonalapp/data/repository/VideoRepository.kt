@@ -30,11 +30,12 @@ object VideoRepository {
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
 
     // ── YouTube embed base ────────────────────────────────────────────────────
-    // autoplay=1 is blocked by YouTube policy inside Android WebViews even when
-    // mediaPlaybackRequiresUserGesture is disabled. Omitting it lets the iFrame
-    // show YouTube's native play button so the user can start playback manually.
     private fun yt(id: String) =
         "https://www.youtube.com/embed/$id?rel=0&modestbranding=1"
+
+    /** Real YouTube thumbnail — high-quality JPEG served directly by Google CDN. */
+    private fun ytThumb(id: String) =
+        "https://img.youtube.com/vi/$id/hqdefault.jpg"
 
     private val catalogue: List<VideoItem> = listOf(
 
@@ -66,13 +67,13 @@ object VideoRepository {
             views = "82 K vistas"
         ),
 
-        // ──────────────── YOUTUBE ────────────────────────────────────────────
+        // ──────────────── YOUTUBE (1 por categoría) ──────────────────────────
         VideoItem(
             id = "yt_1",
             title = "Yoga para Principiantes – 30 min",
             description = "Clase completa de yoga para principiantes. Mejora tu flexibilidad, " +
                     "reduce el estrés y conecta con tu respiración en 30 minutos.",
-            thumbnailUrl = "https://picsum.photos/seed/yoga30/640/360",
+            thumbnailUrl = ytThumb("v7AYKMP6rOE"),
             videoUrl = yt("v7AYKMP6rOE"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.YOGA,
@@ -85,7 +86,7 @@ object VideoRepository {
             title = "Cardio en Casa sin Saltar",
             description = "Rutina cardiovascular de bajo impacto ideal para espacios pequeños o " +
                     "cuando no puedes hacer ruido. Perfecta para todos los niveles.",
-            thumbnailUrl = "https://picsum.photos/seed/cardiohouse/640/360",
+            thumbnailUrl = ytThumb("FVnwgxAdPBk"),
             videoUrl = yt("FVnwgxAdPBk"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.CARDIO,
@@ -98,7 +99,7 @@ object VideoRepository {
             title = "Entrenamiento Pecho y Espalda",
             description = "Sesión de hipertrofia enfocada en pecho y espalda. Incluye variantes " +
                     "de press, jalones y remos con consejos de técnica detallados.",
-            thumbnailUrl = "https://picsum.photos/seed/chestback/640/360",
+            thumbnailUrl = ytThumb("CBY_bM5NzAc"),
             videoUrl = yt("CBY_bM5NzAc"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.FUERZA,
@@ -111,7 +112,7 @@ object VideoRepository {
             title = "Calentamiento Dinámico – 10 min",
             description = "Prepara tus articulaciones y músculos antes de cualquier entrenamiento " +
                     "con este calentamiento dinámico que activa todo el cuerpo.",
-            thumbnailUrl = "https://picsum.photos/seed/warmup10/640/360",
+            thumbnailUrl = ytThumb("HDcHMBqCHLU"),
             videoUrl = yt("HDcHMBqCHLU"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.CALENTAMIENTO,
@@ -124,81 +125,13 @@ object VideoRepository {
             title = "HIIT Tabata – Quema Grasa Total",
             description = "Protocolo Tabata 20/10 seg de los más intensos. Ideal para quemar " +
                     "grasa en poco tiempo. Nivel intermedio-avanzado.",
-            thumbnailUrl = "https://picsum.photos/seed/tabatahiit/640/360",
+            thumbnailUrl = ytThumb("ml6cT4AZdqI"),
             videoUrl = yt("ml6cT4AZdqI"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.HIIT,
             duration = "22:30",
             instructor = "Sydney Cummings",
             views = "1.9 M vistas"
-        ),
-        VideoItem(
-            id = "yt_6",
-            title = "Cardio Baile – Zumba Básico",
-            description = "Muévete al ritmo de la música mientras quemas calorías. " +
-                    "Clase de Zumba introductoria, sin experiencia previa necesaria.",
-            thumbnailUrl = "https://picsum.photos/seed/zumba1/640/360",
-            videoUrl = yt("UItWltVZZmE"),
-            source = VideoSource.YOUTUBE,
-            category = VideoCategory.CARDIO,
-            duration = "35:00",
-            instructor = "Zumba Official",
-            views = "7.2 M vistas"
-        ),
-
-        // ──────────────── VIMEO ──────────────────────────────────────────────
-        VideoItem(
-            id = "vimeo_1",
-            title = "Abstract — The Art of Design",
-            description = "Documental de diseño de Netflix. Vimeo public embed test.",
-            thumbnailUrl = "https://picsum.photos/seed/vimeo1/640/360",
-            videoUrl = "https://player.vimeo.com/video/208488746?autoplay=0&byline=0&title=0&portrait=0",
-            source = VideoSource.WEBVIEW,
-            category = VideoCategory.FUERZA,
-            duration = "—",
-            instructor = "Vimeo Test",
-            views = "Público"
-        ),
-
-        // ──────────────── DIRECT MP4 ─────────────────────────────────────────
-        VideoItem(
-            id = "mp4_1",
-            title = "Sentadillas: Técnica Perfecta",
-            description = "Guía visual offline sobre la técnica correcta de la sentadilla libre. " +
-                    "Ángulos de rodilla, posición de la barra y activación del core.",
-            thumbnailUrl = "https://picsum.photos/seed/squat_tech/640/360",
-            videoUrl = MP4_3,
-            source = VideoSource.DIRECT_MP4,
-            category = VideoCategory.FUERZA,
-            duration = "08:15",
-            instructor = "Fitness App – Técnica",
-            views = "12 K vistas"
-        ),
-        VideoItem(
-            id = "mp4_2",
-            title = "Estiramientos Post-Entreno",
-            description = "Secuencia de estiramientos estáticos para hacer al terminar el " +
-                    "entrenamiento. Reduce el DOMS y mejora la movilidad progresivamente.",
-            thumbnailUrl = "https://picsum.photos/seed/stretching/640/360",
-            videoUrl = MP4_4,
-            source = VideoSource.DIRECT_MP4,
-            category = VideoCategory.CALENTAMIENTO,
-            duration = "12:00",
-            instructor = "Fitness App – Recuperación",
-            views = "9 K vistas"
-        ),
-        VideoItem(
-            id = "mp4_3",
-            title = "Yoga Restaurativo – Noche",
-            description = "Flujo de yoga suave para antes de dormir. Posturas de suelo que " +
-                    "liberan la tensión acumulada durante el día.",
-            thumbnailUrl = "https://picsum.photos/seed/yoga_night/640/360",
-            videoUrl = MP4_5,
-            source = VideoSource.DIRECT_MP4,
-            category = VideoCategory.YOGA,
-            duration = "28:40",
-            instructor = "Fitness App – Bienestar",
-            views = "6 K vistas"
         )
     )
 
