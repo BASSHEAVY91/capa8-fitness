@@ -20,6 +20,7 @@
             android:exported="true"
             android:label="@string/app_name"
             android:hardwareAccelerated="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard|navigation|uiMode"
             android:theme="@style/Theme.FitnessPersonalApp.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
