@@ -2,7 +2,17 @@ package com.capa8.fitnesspersonalapp.ui.screens
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -276,6 +286,18 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
     var totalSeconds by remember { mutableIntStateOf(prefs.getInt(KEY_CRONO_S, 0)) }
     var isRunning    by remember { mutableStateOf(false) }
 
+    // Cronómetro: pulsing alpha when running
+    val cronoPulseTransition = rememberInfiniteTransition(label = "cronoPulse")
+    val cronoPulseAlpha by cronoPulseTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 650, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cronoAlpha"
+    )
+
     LaunchedEffect(isRunning) { while (isRunning) { delay(1.seconds); totalSeconds++ } }
     LaunchedEffect(totalSeconds) { if (!isRunning) prefs.edit().putInt(KEY_CRONO_S, totalSeconds).apply() }
 
@@ -286,6 +308,18 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
         calcImc(pesoText.toFloatOrNull() ?: 0f, alturaText.toFloatOrNull() ?: 0f)
     }
     val cat = imcCategory(imc)
+
+    // IMC: animated progress and color
+    val animatedImcProgress by animateFloatAsState(
+        targetValue = if (imc > 0f) ((imc - 10f) / 30f).coerceIn(0f, 1f) else 0f,
+        animationSpec = tween(durationMillis = 700),
+        label = "imcProgress"
+    )
+    val animatedImcColor by animateColorAsState(
+        targetValue = cat.color,
+        animationSpec = tween(durationMillis = 400),
+        label = "imcColor"
+    )
 
     LaunchedEffect(pesoText)   { prefs.edit().putString(KEY_PESO,   pesoText).apply() }
     LaunchedEffect(alturaText) { prefs.edit().putString(KEY_ALTURA, alturaText).apply() }
@@ -361,7 +395,11 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                 CollapsibleHeader(Icons.Filled.Book, "Bit\u00e1cora de Entrenamiento", bitacoraExpanded) {
                     bitacoraExpanded = !bitacoraExpanded
                 }
-                AnimatedVisibility(visible = bitacoraExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = bitacoraExpanded,
+                    enter = expandVertically(animationSpec = tween(280)) + fadeIn(tween(220)),
+                    exit  = shrinkVertically(animationSpec = tween(220)) + fadeOut(tween(160))
+                ) {
                     Column {
                         Spacer(Modifier.height(14.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -468,7 +506,11 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                 CollapsibleHeader(Icons.Filled.RestaurantMenu, "Nutrición", nutricionExpanded) {
                     nutricionExpanded = !nutricionExpanded
                 }
-                AnimatedVisibility(visible = nutricionExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = nutricionExpanded,
+                    enter = expandVertically(animationSpec = tween(280)) + fadeIn(tween(220)),
+                    exit  = shrinkVertically(animationSpec = tween(220)) + fadeOut(tween(160))
+                ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Spacer(Modifier.height(14.dp))
 
@@ -687,7 +729,11 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 CollapsibleHeader(Icons.Filled.Timer, "Cron\u00f3metro", cronoExpanded) { cronoExpanded = !cronoExpanded }
-                AnimatedVisibility(visible = cronoExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = cronoExpanded,
+                    enter = expandVertically(animationSpec = tween(280)) + fadeIn(tween(220)),
+                    exit  = shrinkVertically(animationSpec = tween(220)) + fadeOut(tween(160))
+                ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -699,7 +745,7 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                             text = formatTime(totalSeconds),
                             fontSize = timeFontSize,
                             fontWeight = FontWeight.ExtraBold,
-                            color = FitnessBlueDark,
+                            color = FitnessBlueDark.copy(alpha = if (isRunning) cronoPulseAlpha else 1f),
                             letterSpacing = 3.sp
                         )
 
@@ -764,7 +810,11 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp)) {
                 CollapsibleHeader(Icons.Filled.Calculate, "Calculadora IMC", imcExpanded) { imcExpanded = !imcExpanded }
-                AnimatedVisibility(visible = imcExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = imcExpanded,
+                    enter = expandVertically(animationSpec = tween(280)) + fadeIn(tween(220)),
+                    exit  = shrinkVertically(animationSpec = tween(220)) + fadeOut(tween(160))
+                ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Spacer(Modifier.height(14.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -786,21 +836,20 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
                         if (imc > 0f) {
                             Spacer(Modifier.height(16.dp))
                             Box(
-                                modifier = Modifier.fillMaxWidth().background(cat.color.copy(alpha = 0.10f), RoundedCornerShape(10.dp)).padding(16.dp),
+                                modifier = Modifier.fillMaxWidth().background(animatedImcColor.copy(alpha = 0.10f), RoundedCornerShape(10.dp)).padding(16.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text("%.1f".format(imc), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = cat.color)
-                                    Text(cat.label, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = cat.color)
+                                    Text("%.1f".format(imc), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = animatedImcColor)
+                                    Text(cat.label, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = animatedImcColor)
                                 }
                             }
                             Spacer(Modifier.height(10.dp))
-                            val progress = ((imc - 10f) / 30f).coerceIn(0f, 1f)
                             LinearProgressIndicator(
-                                progress = { progress },
+                                progress = { animatedImcProgress },
                                 modifier = Modifier.fillMaxWidth().height(8.dp),
-                                color = cat.color,
-                                trackColor = cat.color.copy(alpha = 0.20f),
+                                color = animatedImcColor,
+                                trackColor = animatedImcColor.copy(alpha = 0.20f),
                                 strokeCap = StrokeCap.Round
                             )
                             Spacer(Modifier.height(6.dp))
@@ -826,7 +875,11 @@ fun UtilidadesScreen(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = cardInnerHPadding, vertical = 16.dp)) {
                 CollapsibleHeader(Icons.AutoMirrored.Filled.TrendingUp, "Progreso Semanal", progresoExpanded) { progresoExpanded = !progresoExpanded }
-                AnimatedVisibility(visible = progresoExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = progresoExpanded,
+                    enter = expandVertically(animationSpec = tween(280)) + fadeIn(tween(220)),
+                    exit  = shrinkVertically(animationSpec = tween(220)) + fadeOut(tween(160))
+                ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Spacer(Modifier.height(14.dp))
                         val maxKg = weeklyRecords.maxOfOrNull { it.kg } ?: 100f

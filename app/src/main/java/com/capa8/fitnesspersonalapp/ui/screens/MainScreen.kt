@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -47,9 +48,19 @@ import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 @Composable
 fun MainScreen() {
     // Track route order for slide direction
-    val routeOrder = remember { NavRoutes.orderedRoutes }
+    val routeOrder = remember { sideNavItems.map { it.route } }
     var selectedRoute by rememberSaveable { mutableStateOf(NavRoutes.Utilidades.route) }
     var prevRoute     by rememberSaveable { mutableStateOf(NavRoutes.Utilidades.route) }
+    var navCollapsed  by rememberSaveable { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            val currentItem = sideNavItems.find { it.route == selectedRoute }
+            val screenTitle = currentItem?.label ?: "FitPoli"
+            val sectionIcon = currentItem?.icon
+            FitnessTopBar(
+                title       = screenTitle,
+                sectionIcon = sectionIcon,
                 onMenuClick = { navCollapsed = !navCollapsed }
             )
         }
@@ -64,22 +75,44 @@ fun MainScreen() {
             SideNavPanel(
                 items = sideNavItems,
                 selectedRoute = selectedRoute,
-                onItemClick = { route -> selectedRoute = route },
+                onItemClick = { route ->
+                    prevRoute = selectedRoute
+                    selectedRoute = route
+                },
                 collapsed = navCollapsed,
                 onToggleCollapse = { navCollapsed = !navCollapsed }
             )
 
-            // ── Content area ──────────────────────────────────────────────
-            val contentModifier = Modifier.fillMaxSize()
+            // ── Content area with animated screen transitions ─────────────
+            val prevIdx = routeOrder.indexOf(prevRoute)
+            val currIdx = routeOrder.indexOf(selectedRoute)
+            val slideForward = currIdx >= prevIdx
 
-            Box(contentModifier) {
-                when (selectedRoute) {
-                    NavRoutes.Perfil.route     -> PerfilScreen()
-                    NavRoutes.Fotos.route      -> FotosScreen(modifier = Modifier.fillMaxSize())
-                    NavRoutes.Video.route      -> VideoScreen(modifier = Modifier.fillMaxSize())
-                    NavRoutes.Web.route        -> WebScreen(modifier = Modifier.fillMaxSize())
-                    NavRoutes.Utilidades.route -> UtilidadesScreen()
-                    else                       -> PerfilScreen()
+            AnimatedContent(
+                targetState = selectedRoute,
+                transitionSpec = {
+                    val enter = slideInHorizontally(
+                        initialOffsetX = { if (slideForward) it else -it },
+                        animationSpec = tween(300)
+                    ) + fadeIn(tween(300))
+                    val exit = slideOutHorizontally(
+                        targetOffsetX = { if (slideForward) -it else it },
+                        animationSpec = tween(300)
+                    ) + fadeOut(tween(200))
+                    enter togetherWith exit
+                },
+                modifier = Modifier.fillMaxSize(),
+                label = "screenTransition"
+            ) { route ->
+                Box(Modifier.fillMaxSize()) {
+                    when (route) {
+                        NavRoutes.Perfil.route     -> PerfilScreen()
+                        NavRoutes.Fotos.route      -> FotosScreen(modifier = Modifier.fillMaxSize())
+                        NavRoutes.Video.route      -> VideoScreen(modifier = Modifier.fillMaxSize())
+                        NavRoutes.Web.route        -> WebScreen(modifier = Modifier.fillMaxSize())
+                        NavRoutes.Utilidades.route -> UtilidadesScreen()
+                        else                       -> PerfilScreen()
+                    }
                 }
             }
         }

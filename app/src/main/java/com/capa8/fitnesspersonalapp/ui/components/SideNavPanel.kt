@@ -1,7 +1,10 @@
 package com.capa8.fitnesspersonalapp.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
@@ -25,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -42,6 +46,7 @@ import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
 import com.capa8.fitnesspersonalapp.ui.theme.SideMenuBackground
 import com.capa8.fitnesspersonalapp.ui.theme.SideMenuSelected
 import com.capa8.fitnesspersonalapp.ui.theme.SideMenuText
+import androidx.compose.animation.animateColorAsState
 
 /**
  * Persistent vertical navigation panel with icons and an animated collapse toggle.
@@ -131,9 +136,33 @@ private fun SideNavItemCell(
     collapsed: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isSelected) SideMenuSelected else Color.Transparent
-    val iconTint = if (isSelected) FitnessBlue else SideMenuText
-    val textColor = if (isSelected) FitnessBlueDark else SideMenuText
+    // Animated background color
+    val bgColor by animateColorAsState(
+        targetValue = if (isSelected) SideMenuSelected else Color.Transparent,
+        animationSpec = tween(durationMillis = 200),
+        label = "navItemBg"
+    )
+    // Animated icon tint
+    val iconTint by animateColorAsState(
+        targetValue = if (isSelected) FitnessBlue else SideMenuText,
+        animationSpec = tween(durationMillis = 200),
+        label = "navIconTint"
+    )
+    // Animated text color
+    val textColor by animateColorAsState(
+        targetValue = if (isSelected) FitnessBlueDark else SideMenuText,
+        animationSpec = tween(durationMillis = 200),
+        label = "navTextColor"
+    )
+    // Spring-based scale pop when selected
+    val iconScale by animateFloatAsState(
+        targetValue = if (isSelected) 1.15f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "navIconScale"
+    )
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,21 +174,20 @@ private fun SideNavItemCell(
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp, horizontal = 4.dp)
     ) {
-        // Active indicator bar on the left (only when expanded + selected)
-        // We achieve the effect via the background instead.
-
         Icon(
             imageVector = item.icon,
             contentDescription = item.label,
             tint = iconTint,
-            modifier = Modifier.size(if (isSelected) 26.dp else 24.dp)
+            modifier = Modifier
+                .size(24.dp)
+                .scale(iconScale)
         )
 
         // Label — hidden in collapsed mode using AnimatedVisibility
         AnimatedVisibility(
             visible = !collapsed,
-            enter = expandHorizontally(),
-            exit = shrinkHorizontally()
+            enter = expandHorizontally(animationSpec = tween(200)),
+            exit = shrinkHorizontally(animationSpec = tween(150))
         ) {
             Text(
                 text = item.label,
