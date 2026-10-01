@@ -1,18 +1,26 @@
 package com.capa8.fitnesspersonalapp.ui.screens
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import com.capa8.fitnesspersonalapp.data.model.VideoCategory
 import com.capa8.fitnesspersonalapp.data.model.VideoItem
 import com.capa8.fitnesspersonalapp.data.model.VideoSource
+import com.capa8.fitnesspersonalapp.data.repository.VideoPreferencesHelper
 import com.capa8.fitnesspersonalapp.data.repository.VideoRepository
 import java.util.UUID
 
 /**
  * Holds the mutable video catalogue and the live search / category state.
+ *
+ * Persistence strategy:
+ *  – On init, the catalogue is loaded from [VideoPreferencesHelper] (SharedPreferences).
+ *    If no saved data exists (first launch), it falls back to the static [VideoRepository].
+ *  – Every [addVideo] and [deleteVideo] call immediately persists the updated list,
+ *    so changes survive process death and app restarts.
  *
  * Source detection priority in [addVideo]:
  *  1. YouTube  (youtube.com, youtu.be)     → [VideoSource.YOUTUBE]   embed URL
@@ -20,10 +28,20 @@ import java.util.UUID
  *  3. Direct stream (.mp4 / .m3u8 / etc.) → [VideoSource.DIRECT_MP4]
  *  4. Anything else                        → [VideoSource.WEBVIEW]   loaded as-is
  */
-class VideoViewModel : ViewModel() {
+class VideoViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _videos = mutableStateListOf<VideoItem>().also {
-        it.addAll(VideoRepository.getVideos())
+    private val prefs = VideoPreferencesHelper(application)
+
+    private val _videos = mutableStateListOf<VideoItem>().also { list ->
+        // Load persisted catalogue; fall back to built-in catalogue on first launch.
+        val saved = prefs.loadVideos()
+        if (saved != null) {
+            list.addAll(saved)
+        } else {
+            list.addAll(VideoRepository.getVideos())
+            // Persist the initial catalogue so future launches have a saved baseline.
+            prefs.saveVideos(list.toList())
+        }
     }
 
     var searchQuery by mutableStateOf("")
@@ -127,15 +145,21 @@ class VideoViewModel : ViewModel() {
                 views = "Nuevo"
             )
         )
+
+        // Persist immediately so the new video survives app restarts.
+        prefs.saveVideos(_videos.toList())
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
 
     /**
      * Removes a video by [id]. Works for both catalogue and user-added videos.
+     * The deletion is immediately persisted so it survives app restarts.
      */
     fun deleteVideo(id: String) {
         _videos.removeIf { it.id == id }
+        // Persist immediately so the deleted video does not reappear on next launch.
+        prefs.saveVideos(_videos.toList())
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
