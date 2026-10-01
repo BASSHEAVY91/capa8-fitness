@@ -2,10 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Required on API 28 (Android 9) to read gallery URIs returned by GetContent() -->
+
+    <!--
+        READ_EXTERNAL_STORAGE (API ≤ 32 only).
+        Since the app uses the Storage Access Framework (OpenDocument +
+        takePersistableUriPermission), this permission is NOT required for local
+        video access on API 33+. It is kept here only as a safety-net for devices
+        running Android 9–12 in case the SAF provider returns a path-based URI
+        that requires legacy storage access.
+    -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <!--
+        READ_MEDIA_VIDEO (API 33+ / Android 13+).
+        Not required for SAF-obtained content:// URIs that were persisted with
+        takePersistableUriPermission — the system URI grant already provides direct
+        access. Declared here so the openInputStream fallback path in VideoViewModel
+        can access MediaStore URIs on Android 13+ if the SAF grant is somehow absent.
+    -->
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO"
+        android:minSdkVersion="33" />
 
     <application
         android:allowBackup="true"

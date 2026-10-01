@@ -1,5 +1,6 @@
 package com.capa8.fitnesspersonalapp.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -387,10 +389,25 @@ private fun AddVideoDialog(
     var selectedCategory by remember { mutableStateOf(VideoCategory.CARDIO) }
     var categoryExpanded by remember { mutableStateOf(false) }
     val isValid = title.isNotBlank() && url.isNotBlank()
+    val context = LocalContext.current
 
-    // Launcher for picking a local video from the device
-    val videoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { url = it.toString() }
+    // Use OpenDocument instead of GetContent: OpenDocument grants a persistable URI
+    // permission that survives app restarts, while GetContent only grants a temporary
+    // session-scoped permission that is revoked when the process dies.
+    val videoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            // Take a persistent read permission so the URI remains accessible
+            // after the app is closed and reopened.
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            url = uri.toString()
+        }
     }
 
     // Detect source type for the helper label
@@ -447,7 +464,7 @@ private fun AddVideoDialog(
 
                 // Pick from device button
                 TextButton(
-                    onClick = { videoPicker.launch("video/*") },
+                    onClick = { videoPicker.launch(arrayOf("video/*")) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(

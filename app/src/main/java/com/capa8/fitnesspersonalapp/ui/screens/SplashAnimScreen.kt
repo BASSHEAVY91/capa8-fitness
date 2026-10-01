@@ -258,7 +258,7 @@ fun SplashAnimScreen(isReady: Boolean = true, onFinished: () -> Unit) {
 
     val (phraseText, phraseIcon) = remember { phrases.random() }
 
-    val bgAlpha     = remember { Animatable(0f) }
+    val bgAlpha     = remember { Animatable(1f) }   // empieza opaco: mismo color que el splash del sistema → sin flash
     val logoScale   = remember { Animatable(0f) }
     val logoAlpha   = remember { Animatable(0f) }
     val nameOffsetY = remember { Animatable(44f) }
@@ -269,7 +269,8 @@ fun SplashAnimScreen(isReady: Boolean = true, onFinished: () -> Unit) {
 
     // Main animation sequence
     LaunchedEffect(Unit) {
-        bgAlpha.animateTo(1f, tween(280))
+        // bgAlpha ya es 1f desde el inicio – el fondo azul de Compose coincide con el
+        // splash del sistema (#4A90D9), por lo que la transición es imperceptible.
         delay(120.milliseconds)
         logoAlpha.animateTo(1f, tween(220))
         logoScale.animateTo(1f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium))

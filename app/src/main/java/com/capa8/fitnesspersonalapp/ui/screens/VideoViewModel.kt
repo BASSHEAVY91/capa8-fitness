@@ -1,6 +1,8 @@
 package com.capa8.fitnesspersonalapp.ui.screens
 
 import android.app.Application
+import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +38,24 @@ class VideoViewModel(application: Application) : AndroidViewModel(application) {
         // Load persisted catalogue; fall back to built-in catalogue on first launch.
         val saved = prefs.loadVideos()
         if (saved != null) {
-            list.addAll(saved)
+            // Filter out LOCAL videos whose content:// URI permission was lost (e.g.
+            // videos added before the OpenDocument/takePersistableUriPermission fix, or
+            // videos whose files were deleted). SecurityException is thrown when the app
+            // no longer holds a valid URI grant for that content:// address.
+            val accessible = saved.filter { video ->
+                if (video.source != VideoSource.LOCAL) return@filter true
+                canAccessUri(application, video.videoUrl).also { ok ->
+                    if (!ok) Log.w(
+                        "VideoViewModel",
+                        "Dropping stale LOCAL video '${video.title}' – URI no longer accessible: ${video.videoUrl}"
+                    )
+                }
+            }
+            list.addAll(accessible)
+            // If any stale entries were removed, persist the cleaned list immediately.
+            if (accessible.size != saved.size) {
+                prefs.saveVideos(list.toList())
+            }
         } else {
             list.addAll(VideoRepository.getVideos())
             // Persist the initial catalogue so future launches have a saved baseline.
@@ -169,6 +188,52 @@ class VideoViewModel(application: Application) : AndroidViewModel(application) {
         val short = Regex("youtu\\.be/([a-zA-Z0-9_-]{11})")
         return watch.find(url)?.groupValues?.get(1)
             ?: short.find(url)?.groupValues?.get(1)
+    }
+
+    // ── URI accessibility check ───────────────────────────────────────────────
+
+    /**
+     * Returns `true` if the app can access [uriString] after a restart.
+     *
+     * **Strategy:**
+     * 1. For `content://` URIs: first look in [android.content.ContentResolver.persistedUriPermissions]
+     *    (the system-managed list of durable grants created by [android.content.ContentResolver.takePersistableUriPermission]).
+     *    This is a fast, IO-free check that survives process death. If a matching read-grant
+     *    exists we return `true` immediately — no stream needed.
+     * 2. Fallback (file:// URIs and content:// without a registered grant): attempt
+     *    `openInputStream` as before.
+     *
+     * Previously the code only used `openInputStream`, which can fail transiently
+     * at cold-start (MediaStore not yet fully initialized, storage still mounting,
+     * StrictMode policy on some ROMs).  When that happened the video was silently
+     * dropped **and** immediately re-persisted without it — meaning the loss was
+     * permanent even though the file and its permission were still valid.
+     */
+    private fun canAccessUri(application: Application, uriString: String): Boolean {
+        val uri = try { Uri.parse(uriString) } catch (_: Exception) { return false }
+
+        // Fast path: check the durable URI-permission registry for content:// URIs.
+        if (uri.scheme == "content") {
+            val hasPersisted = application.contentResolver
+                .persistedUriPermissions
+                .any { perm -> perm.uri == uri && perm.isReadPermission }
+            if (hasPersisted) return true
+            // No persisted grant found — the URI was probably added with the old
+            // GetContent launcher (temporary permission only).  Fall through to the
+            // stream check so videos added before the OpenDocument migration still
+            // work during the same session, then get dropped cleanly next cold-start.
+        }
+
+        // Fallback: try opening the stream (file:// or un-persisted content://).
+        return try {
+            application.contentResolver
+                .openInputStream(uri)
+                ?.use { true } ?: false
+        } catch (_: SecurityException) {
+            false
+        } catch (_: Exception) {
+            false
+        }
     }
 
     private fun extractVimeoId(url: String): String? {
