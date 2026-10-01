@@ -17,18 +17,20 @@ import com.capa8.fitnesspersonalapp.data.model.VideoSource
  */
 object VideoRepository {
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /** Builds the standard YouTube embed URL from a video ID. */
+    private fun yt(id: String) =
+        "https://www.youtube.com/embed/$id?autoplay=1&rel=0&modestbranding=1&playsinline=1"
+
+    /** Thumbnail via YouTube's image CDN (no API key needed). */
+    private fun ytThumb(id: String) = "https://img.youtube.com/vi/$id/hqdefault.jpg"
+
     // ── Sample direct-stream MP4s (Google CDN – public domain test videos) ─────
     private const val MP4_1 =
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
     private const val MP4_2 =
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
-    // ── YouTube embed base ────────────────────────────────────────────────────
-    private fun yt(id: String) =
-        "https://www.youtube.com/embed/$id?rel=0&modestbranding=1"
-
-    /** Real YouTube thumbnail — high-quality JPEG served directly by Google CDN. */
-    private fun ytThumb(id: String) =
-        "https://img.youtube.com/vi/$id/hqdefault.jpg"
 
     private val catalogue: List<VideoItem> = listOf(
 
@@ -60,7 +62,7 @@ object VideoRepository {
             views = "82 K vistas"
         ),
 
-        // ──────────────── YOUTUBE (1 por categoría) ──────────────────────────
+        // ──────────────── YOUTUBE ─────────────────────────────────────────────
         VideoItem(
             id = "yt_1",
             title = "Yoga para Principiantes – 30 min",
@@ -79,8 +81,8 @@ object VideoRepository {
             title = "Cardio en Casa sin Saltar",
             description = "Rutina cardiovascular de bajo impacto ideal para espacios pequeños o " +
                     "cuando no puedes hacer ruido. Perfecta para todos los niveles.",
-            thumbnailUrl = ytThumb("FVnwgxAdPBk"),
-            videoUrl = yt("FVnwgxAdPBk"),
+            thumbnailUrl = ytThumb("ml6cT4AZdqI"),
+            videoUrl = yt("ml6cT4AZdqI"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.CARDIO,
             duration = "25:08",
@@ -92,8 +94,8 @@ object VideoRepository {
             title = "Entrenamiento Pecho y Espalda",
             description = "Sesión de hipertrofia enfocada en pecho y espalda. Incluye variantes " +
                     "de press, jalones y remos con consejos de técnica detallados.",
-            thumbnailUrl = ytThumb("CBY_bM5NzAc"),
-            videoUrl = yt("CBY_bM5NzAc"),
+            thumbnailUrl = ytThumb("gB9FpnOBKzY"),
+            videoUrl = yt("gB9FpnOBKzY"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.FUERZA,
             duration = "18:45",
@@ -105,8 +107,8 @@ object VideoRepository {
             title = "Calentamiento Dinámico – 10 min",
             description = "Prepara tus articulaciones y músculos antes de cualquier entrenamiento " +
                     "con este calentamiento dinámico que activa todo el cuerpo.",
-            thumbnailUrl = ytThumb("HDcHMBqCHLU"),
-            videoUrl = yt("HDcHMBqCHLU"),
+            thumbnailUrl = ytThumb("HDhQMr0G_lQ"),
+            videoUrl = yt("HDhQMr0G_lQ"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.CALENTAMIENTO,
             duration = "10:02",
@@ -118,8 +120,8 @@ object VideoRepository {
             title = "HIIT Tabata – Quema Grasa Total",
             description = "Protocolo Tabata 20/10 seg de los más intensos. Ideal para quemar " +
                     "grasa en poco tiempo. Nivel intermedio-avanzado.",
-            thumbnailUrl = ytThumb("ml6cT4AZdqI"),
-            videoUrl = yt("ml6cT4AZdqI"),
+            thumbnailUrl = ytThumb("TkaYafQ-XC4"),
+            videoUrl = yt("TkaYafQ-XC4"),
             source = VideoSource.YOUTUBE,
             category = VideoCategory.HIIT,
             duration = "22:30",
