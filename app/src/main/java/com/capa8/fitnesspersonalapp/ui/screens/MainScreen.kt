@@ -1,5 +1,12 @@
 package com.capa8.fitnesspersonalapp.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -39,15 +46,10 @@ import com.capa8.fitnesspersonalapp.ui.theme.FitnessPersonalAppTheme
  */
 @Composable
 fun MainScreen() {
+    // Track route order for slide direction
+    val routeOrder = remember { NavRoutes.orderedRoutes }
     var selectedRoute by rememberSaveable { mutableStateOf(NavRoutes.Utilidades.route) }
-    var navCollapsed  by rememberSaveable { mutableStateOf(false) }
-
-    Scaffold(
-        topBar = {
-            val screenTitle = sideNavItems.find { it.route == selectedRoute }?.label
-                ?: "FitPoli"
-            FitnessTopBar(
-                title = screenTitle,
+    var prevRoute     by rememberSaveable { mutableStateOf(NavRoutes.Utilidades.route) }
                 onMenuClick = { navCollapsed = !navCollapsed }
             )
         }
